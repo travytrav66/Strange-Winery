@@ -1,0 +1,4688 @@
+/* ============================================================
+   STRANGE FAMILY VINEYARDS
+   Editorial homepage — luxury refinement pass
+   Display: Cormorant Garamond  ·  UI/body: Inter Tight
+   ============================================================ */
+
+/* ============================================================ 01. TOKENS */
+:root {
+    /* ---- surfaces ---- */
+    --cream: #f6f2ea;
+    --cream-deep: #ece5d8;
+    --cream-warm: #fbf8f2;
+    --paper: #fffdf9;
+
+    /* ---- ink ---- */
+    --ink: #1c1815;
+    --ink-deep: #121010;
+    --ink-soft: #2a2521;
+    --body: #58524b;
+    --body-soft: #7d766d;
+
+    /* ---- accents ---- */
+    --merlot: #4a1528;
+    --merlot-deep: #350e1c;
+    --sage: #8a9e7b;
+    --gold: #b8934f;
+    --gold-lit: #cfae6f;
+    --gold-soft: #ddc294;
+
+    --nav-solid: #191614;
+
+    --paper-line: rgba(28, 24, 21, 0.13);
+    --paper-line-soft: rgba(28, 24, 21, 0.07);
+    --dark-line: rgba(246, 242, 234, 0.12);
+    --dark-line-soft: rgba(246, 242, 234, 0.06);
+
+    /* ---- layout ---- */
+    --maxw: 1340px;
+    --gutter: clamp(22px, 5vw, 88px);
+
+    /* ---- motion ---- */
+    --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+    /* ---- type ---- */
+    --micro: 0.34em;
+}
+
+/* ============================================================ 01b. DAYPART SKY
+   The hero grades itself to the visitor's local clock. script.js (01c) reads
+   the time, resolves it to one of six bands and puts it on <html> as
+   data-daypart; everything below is pure CSS off that one attribute.
+
+   Two knobs do the work:
+     · --sky-top / --sky-bot   the tint wash laid over the photo
+     · --sky-bright/-contrast/-sat   the grade applied to the photo itself
+   A third, --fog-mul, is not used by CSS — script.js reads it back off the
+   computed style and scales the fog canvas density with it. The arc across a
+   day: fog rolls in overnight, peaks through the morning, burns off entirely
+   at eleven, stays gone all afternoon, and creeps back at dusk. That is the
+   brand line made literal: "about eleven in the morning, when the fog lifts
+   off the ridge and the whole hillside exhales."
+
+   At 0 the canvas stops painting altogether rather than drawing a fully
+   transparent layer — see the idle check in script.js 01.
+
+   The colour props are registered with @property so the browser can
+   interpolate them — without this a daypart change would snap rather than
+   drift. Browsers without @property support still get the right colours,
+   they just arrive instantly, which is fine: crossings happen once an hour
+   at most and nobody is watching for them. */
+@property --sky-top {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: rgba(255, 255, 255, 0);
+}
+@property --sky-bot {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: rgba(255, 255, 255, 0);
+}
+
+:root {
+    /* neutral default — matches "midday" so a pre-JS paint is never wrong,
+       just uninflected */
+    --sky-top: rgba(255, 252, 244, 0);
+    --sky-bot: rgba(255, 252, 244, 0);
+    --sky-a: 0;
+    --sky-blend: soft-light;
+    --sky-bright: 1;
+    --sky-contrast: 1;
+    --sky-sat: 1;
+    --fog-mul: 1;
+    --sky-scrim: 0.3;
+}
+
+/* ---- 21:00–05:00 · night ---- moonlit, desaturated, a low cold mist ---- */
+[data-daypart="night"] {
+    --sky-top: #16233f;
+    --sky-bot: #060a14;
+    --sky-a: 0.66;
+    --sky-blend: multiply;
+    --sky-bright: 0.72;
+    --sky-contrast: 1.1;
+    --sky-sat: 0.58;
+    --fog-mul: 0.5;
+    --sky-scrim: 0.30;
+}
+
+/* ---- 05:00–08:00 · dawn ---- cold blue floor, a rose lift on the ridge ---- */
+[data-daypart="dawn"] {
+    --sky-top: #2e3f63;
+    --sky-bot: #d8a58c;
+    --sky-a: 0.68;
+    --sky-blend: soft-light;
+    --sky-bright: 0.76;
+    --sky-contrast: 1.02;
+    --sky-sat: 0.66;
+    --fog-mul: 1.0;
+    --sky-scrim: 0.44;
+}
+
+/* ---- 08:00–11:00 · morning ---- the fog sits in and holds ---- */
+[data-daypart="morning"] {
+    --sky-top: #cfd8dd;
+    --sky-bot: #eef0ec;
+    --sky-a: 0.42;
+    --sky-blend: soft-light;
+    --sky-bright: 0.97;
+    --sky-contrast: 0.93;
+    --sky-sat: 0.76;
+    --fog-mul: 1.28;
+    --sky-scrim: 0.48;
+}
+
+/* ---- 11:00–16:00 · midday ---- it lifts. clearest state on the page ---- */
+[data-daypart="midday"] {
+    --sky-top: #eaf1f6;
+    --sky-bot: #fdf8ec;
+    --sky-a: 0.2;
+    --sky-blend: soft-light;
+    --sky-bright: 1.04;
+    --sky-contrast: 1.05;
+    --sky-sat: 1.02;
+    --fog-mul: 0;
+    --sky-scrim: 0.38;
+}
+
+/* ---- 16:00–19:30 · golden ---- the hour the photo was actually shot ---- */
+[data-daypart="golden"] {
+    --sky-top: #f5c98a;
+    --sky-bot: #b9722f;
+    --sky-a: 0.5;
+    --sky-blend: soft-light;
+    --sky-bright: 1.02;
+    --sky-contrast: 1.07;
+    --sky-sat: 1.18;
+    --fog-mul: 0;
+    --sky-scrim: 0.34;
+}
+
+/* ---- 19:30–21:00 · dusk ---- amber falling into violet, fog returning ---- */
+[data-daypart="dusk"] {
+    --sky-top: #6b4a7a;
+    --sky-bot: #c2603f;
+    --sky-a: 0.66;
+    --sky-blend: soft-light;
+    --sky-bright: 0.78;
+    --sky-contrast: 1.06;
+    --sky-sat: 0.94;
+    --fog-mul: 0.3;
+    --sky-scrim: 0.32;
+}
+
+/* The colour props change on <html> and inherit down, so the interpolation
+   has to be declared here — descendants then inherit the already-animated
+   value. Long and slow on purpose: a band crossing should be something you
+   notice only if you happen to be looking. */
+html {
+    transition:
+        --sky-top 2.4s var(--ease-in-out),
+        --sky-bot 2.4s var(--ease-in-out);
+}
+@media (prefers-reduced-motion: reduce) {
+    html {
+        transition: none;
+    }
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+}
+
+/* see the comment on .page in index.html — this is what stops the wax seal's
+   bleed from widening the document. It must not be on html or body. */
+.page {
+    overflow-x: clip;
+}
+
+body {
+    font-family: "Inter Tight", "Jost", system-ui, sans-serif;
+    font-size: 16px;
+    background: var(--cream);
+    color: var(--body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+}
+
+body.is-locked {
+    overflow: hidden;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+}
+a {
+    color: inherit;
+    text-decoration: none;
+}
+button {
+    font: inherit;
+}
+
+::selection {
+    background: var(--merlot);
+    color: var(--cream);
+}
+
+.serif {
+    font-family: "Cormorant Garamond", Georgia, serif;
+}
+
+/* ============================================================ 02. TEXTURE + CHROME */
+
+/* film grain — the cheapest "expensive" trick there is */
+.grain {
+    position: fixed;
+    inset: -120px;
+    z-index: 900;
+    pointer-events: none;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    animation: grainShift 0.7s steps(1) infinite;
+    will-change: transform;
+}
+@keyframes grainShift {
+    0% {
+        transform: translate(0, 0);
+    }
+    20% {
+        transform: translate(-14px, 8px);
+    }
+    40% {
+        transform: translate(10px, -12px);
+    }
+    60% {
+        transform: translate(-8px, -6px);
+    }
+    80% {
+        transform: translate(12px, 10px);
+    }
+    100% {
+        transform: translate(0, 0);
+    }
+}
+
+/* thin gold scroll progress */
+
+/* custom cursor (fine pointer only) */
+.cursor,
+.cursor-dot {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 950;
+    pointer-events: none;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.4s var(--ease);
+}
+.cursor {
+    width: 34px;
+    height: 34px;
+    margin: -17px 0 0 -17px;
+    border: 1px solid rgba(184, 147, 79, 0.85);
+    transition:
+        opacity 0.4s var(--ease),
+        width 0.45s var(--ease-out-expo),
+        height 0.45s var(--ease-out-expo),
+        margin 0.45s var(--ease-out-expo),
+        background 0.45s var(--ease),
+        border-color 0.45s var(--ease);
+}
+.cursor-dot {
+    width: 4px;
+    height: 4px;
+    margin: -2px 0 0 -2px;
+    background: var(--gold);
+}
+.cursor.is-hover {
+    width: 74px;
+    height: 74px;
+    margin: -37px 0 0 -37px;
+    background: rgba(184, 147, 79, 0.12);
+    border-color: rgba(184, 147, 79, 0.5);
+}
+@media (pointer: fine) {
+    body.cursor-ready .cursor,
+    body.cursor-ready .cursor-dot {
+        opacity: 1;
+    }
+}
+
+/* ============================================================ 03. LOADER */
+.loader {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: var(--ink-deep);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    transition:
+        transform 1.05s var(--ease-out-expo),
+        visibility 1.05s;
+}
+.loader::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(70% 50% at 50% 50%, rgba(184, 147, 79, 0.09), transparent 70%);
+    pointer-events: none;
+}
+.loader.hidden {
+    transform: translateY(-101%);
+    visibility: hidden;
+    pointer-events: none;
+}
+.loader-hawk {
+    width: clamp(64px, 10vw, 100px);
+    position: relative;
+    z-index: 1;
+    animation: loaderBreath 2.6s var(--ease-in-out) infinite;
+}
+@keyframes loaderBreath {
+    0%,
+    100% {
+        opacity: 0.45;
+        transform: scale(1) translateY(0);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.05) translateY(-4px);
+    }
+}
+.loader-mark {
+    position: relative;
+    z-index: 1;
+    font-size: 10px;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: rgba(246, 242, 234, 0.45);
+    text-indent: 0.5em;
+}
+.loader-bar-track {
+    position: relative;
+    z-index: 1;
+    width: clamp(140px, 22vw, 260px);
+    height: 1px;
+    background: rgba(246, 242, 234, 0.13);
+}
+.loader-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, rgba(184, 147, 79, 0.7), var(--gold-soft));
+    transition: width 0.18s ease-out;
+}
+.loader-pct {
+    position: relative;
+    z-index: 1;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: rgba(246, 242, 234, 0.38);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================ 04. EDITORIAL ATOMS */
+.kicker {
+    font-size: 11.5px;
+    font-weight: 500;
+    letter-spacing: 0.44em;
+    text-transform: uppercase;
+}
+
+/* The leading rule that used to sit before every eyebrow is gone — the label
+   now stands on its own. The `.no-line` modifier that opted individual
+   eyebrows out went with it; it is no longer referenced anywhere. */
+.eyebrow {
+    display: inline-flex;
+    align-items: center;
+    font-size: 10.5px;
+    letter-spacing: var(--micro);
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 500;
+}
+
+.h-display {
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-weight: 400;
+    line-height: 0.96;
+    letter-spacing: -0.012em;
+    color: var(--ink);
+}
+.h-display em {
+    font-style: italic;
+    font-weight: 300;
+}
+
+.lede {
+    font-size: clamp(17px, 1.3vw, 19px);
+    line-height: 1.75;
+    color: var(--body);
+    font-weight: 300;
+}
+
+.text-link {
+    color: var(--merlot);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7em;
+    font-size: 11px;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    font-weight: 500;
+    position: relative;
+    width: fit-content;
+    padding-bottom: 8px;
+}
+.text-link .arr {
+    transition: transform 0.6s var(--ease-out-expo);
+}
+.text-link::before,
+.text-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 1px;
+    width: 100%;
+    background: currentColor;
+}
+.text-link::before {
+    opacity: 0.22;
+}
+.text-link::after {
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.6s var(--ease-out-expo);
+}
+.text-link:hover::after {
+    transform-origin: left;
+    transform: scaleX(1);
+}
+.text-link:hover .arr {
+    transform: translateX(7px);
+}
+
+/* ---- buttons ---- */
+.ghost-btn,
+.btn-solid {
+    --btn-fill: var(--cream);
+    --btn-ink: var(--ink);
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.9em;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    font-weight: 500;
+    padding: 19px 38px;
+    border-radius: 1px;
+    cursor: pointer;
+    overflow: hidden;
+    isolation: isolate;
+    transition: border-color 0.6s var(--ease);
+}
+
+/* The label exists twice: once in its resting colour, and once inside the
+   fill layer in the inverted colour. Both the fill and its copy of the
+   label are clipped by the same sweeping 45° polygon, so each letter flips
+   colour at the exact moment the edge crosses it rather than the whole
+   label cross-fading on hover. */
+.btn-t {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.9em;
+    white-space: nowrap;
+}
+.btn-fill {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: inherit;
+    background: var(--btn-fill);
+    color: var(--btn-ink);
+    pointer-events: none;
+    clip-path: polygon(-60px 0%, -60px 0%, -114px 100%, -60px 100%);
+    /* not expo: it front-loads so hard the sweep reads as instant */
+    transition: clip-path 0.62s var(--ease-in-out);
+}
+.ghost-btn:hover .btn-fill,
+.btn-solid:hover .btn-fill,
+.ghost-btn:focus-visible .btn-fill,
+.btn-solid:focus-visible .btn-fill {
+    clip-path: polygon(-60px 0%, calc(100% + 60px) 0%, calc(100% + 6px) 100%, -60px 100%);
+}
+.btn-fill .arr,
+.btn-t .arr {
+    transition: transform 0.6s var(--ease-out-expo);
+}
+.ghost-btn:hover .arr,
+.btn-solid:hover .arr {
+    transform: translateX(6px);
+}
+
+.ghost-btn {
+    border: 1px solid rgba(246, 242, 234, 0.45);
+    color: var(--cream);
+    background: rgba(246, 242, 234, 0.03);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+}
+.ghost-btn:hover {
+    border-color: var(--cream);
+}
+
+.ghost-btn.on-light {
+    --btn-fill: var(--ink);
+    --btn-ink: var(--cream);
+    border-color: var(--paper-line);
+    color: var(--ink);
+    background: transparent;
+}
+.ghost-btn.on-light:hover {
+    border-color: var(--ink);
+}
+
+.btn-solid {
+    --btn-fill: var(--merlot-deep);
+    --btn-ink: var(--cream);
+    background: var(--merlot);
+    color: var(--cream);
+    border: 1px solid var(--merlot);
+}
+.btn-solid:hover {
+    border-color: var(--merlot-deep);
+}
+
+/* ============================================================ 05. MOTION PRIMITIVES */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition:
+        opacity 1.1s var(--ease-out-expo),
+        transform 1.1s var(--ease-out-expo);
+}
+.reveal.in {
+    opacity: 1;
+    transform: none;
+}
+.reveal.d1 {
+    transition-delay: 0.09s;
+}
+.reveal.d2 {
+    transition-delay: 0.18s;
+}
+.reveal.d3 {
+    transition-delay: 0.27s;
+}
+.reveal.d4 {
+    transition-delay: 0.36s;
+}
+.reveal.d5 {
+    transition-delay: 0.45s;
+}
+
+/* line-mask reveal */
+.split-line {
+    display: block;
+    overflow: hidden;
+    /* the mask box must clear descenders and italic side-bearings,
+       so pad it out and pull the extra space back with a negative margin */
+    padding: 0.08em 0.1em 0.26em;
+    margin: -0.08em -0.1em -0.26em;
+}
+.split-line > span {
+    display: block;
+    transform: translateY(105%);
+    opacity: 0;
+    transition:
+        transform 1.15s var(--ease-out-expo),
+        opacity 0.9s var(--ease-out-expo);
+}
+.in .split-line > span,
+.split-line.in > span {
+    transform: none;
+    opacity: 1;
+}
+.in .split-line:nth-child(2) > span {
+    transition-delay: 0.11s;
+}
+.in .split-line:nth-child(3) > span {
+    transition-delay: 0.22s;
+}
+.in .split-line:nth-child(4) > span {
+    transition-delay: 0.33s;
+}
+
+/* word-stagger reveal */
+.split-word {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: bottom;
+    padding: 0.1em 0.08em 0.26em;
+    margin: -0.1em -0.08em -0.26em;
+}
+.split-word > i {
+    display: inline-block;
+    font-style: inherit;
+    /* letters carry a hair of side padding so italic overhangs aren't
+       clipped by the neighbouring glyph box */
+    padding: 0 0.006em;
+    margin: 0 -0.006em;
+    transform: translateY(110%);
+    opacity: 0;
+    transition:
+        transform 1.05s var(--ease-out-expo),
+        opacity 0.7s linear;
+}
+.in .split-word > i,
+.split-word.in > i {
+    transform: none;
+    opacity: 1;
+}
+
+/* image mask wipe — a curtain slides away, photo settles out of a slow zoom.
+   NOTE: implemented with an overlay rather than clip-path on the element itself,
+   because clip-path collapses the element's intersection rect and the
+   IntersectionObserver would then never fire. */
+.mask-img {
+    position: relative;
+    overflow: hidden;
+    --curtain: var(--cream);
+}
+.mask-img::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    background: var(--curtain);
+    transform: scaleY(1);
+    transform-origin: top;
+    transition: transform 1.25s var(--ease-out-expo);
+    pointer-events: none;
+}
+.mask-img.in::after {
+    transform: scaleY(0);
+    transform-origin: bottom;
+}
+.mask-img img {
+    transform: scale(1.16);
+    transition: transform 1.9s var(--ease-out-expo);
+    will-change: transform;
+}
+.mask-img.in img {
+    transform: scale(1);
+}
+.process .mask-img,
+.club .mask-img {
+    --curtain: var(--cream-warm);
+}
+.wines .mask-img,
+.events .mask-img {
+    --curtain: var(--ink);
+}
+.mask-img.d1::after {
+    transition-delay: 0.1s;
+}
+.mask-img.d2::after {
+    transition-delay: 0.2s;
+}
+.mask-img.d1 img {
+    transition-delay: 0.1s;
+}
+.mask-img.d2 img {
+    transition-delay: 0.2s;
+}
+
+/* hairline set inside the chamfered photo crop. The path is built in script.js
+   at the box's real pixel size — a viewBox stretched with preserveAspectRatio
+   gets the dash maths wrong, so the line stops part way round. */
+.photo-rule {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 4;
+    pointer-events: none;
+    overflow: visible;
+}
+.photo-rule path {
+    fill: none;
+    stroke: rgba(246, 242, 234, 0.72);
+    stroke-width: 1;
+    /* --rule-len is the measured perimeter, written by script.js */
+    stroke-dasharray: var(--rule-len, 2600px);
+    stroke-dashoffset: var(--rule-len, 2600px);
+    transition: stroke-dashoffset 1.7s var(--ease-out-expo) 1.05s;
+}
+.mask-img.in .photo-rule path {
+    stroke-dashoffset: 0;
+}
+
+/* rule that draws itself */
+.rule {
+    height: 1px;
+    background: var(--paper-line);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 1.4s var(--ease-out-expo);
+}
+.rule.in {
+    transform: scaleX(1);
+}
+.rule.on-dark {
+    background: var(--dark-line);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+    .reveal,
+    .split-line > span,
+    .split-word > i {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+    .mask-img {
+        clip-path: none !important;
+    }
+    .grain {
+        display: none;
+    }
+    /* no pinned film — the hero is one screen with the still photo */
+    .hero-track {
+        height: 100svh !important;
+        min-height: 640px !important;
+    }
+    /* no pin, no bleed — the quote reads as a normal section in full colour */
+    .quote-track {
+        height: auto !important;
+    }
+    .quote-stage {
+        position: static;
+        height: auto;
+        min-height: 0;
+    }
+    .quote-bg {
+        transform: none !important;
+    }
+}
+
+/* ============================================================ 06. NAV */
+.nav {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 60;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 24px var(--gutter);
+    border-bottom: 1px solid transparent;
+    transition:
+        background 0.7s var(--ease),
+        padding 0.7s var(--ease-out-expo),
+        transform 0.7s var(--ease-out-expo),
+        border-color 0.7s var(--ease);
+}
+.nav::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 190%;
+    background: linear-gradient(180deg, rgba(18, 16, 16, 0.5), transparent);
+    pointer-events: none;
+    transition: opacity 0.7s var(--ease);
+}
+.nav.scrolled {
+    /* solid rather than translucent: a blurred fill re-composites against
+       whatever happens to sit behind it, so the bar and the circle below
+       it drifted apart in tone over lighter parts of the page */
+    background: var(--nav-solid);
+    padding: 12px var(--gutter);
+    border-bottom-color: transparent;
+}
+.nav.scrolled::before {
+    opacity: 0;
+}
+.nav.nav-hidden {
+    transform: translateY(-102%);
+}
+
+.nav-left,
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: clamp(18px, 2.4vw, 40px);
+    position: relative;
+    z-index: 1;
+}
+.nav-right {
+    justify-content: flex-end;
+}
+.nav-left {
+    justify-content: flex-start;
+}
+
+.nav-link,
+.nav-login {
+    font-size: 10.5px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: var(--cream);
+    position: relative;
+    display: inline-block;
+    /* no padding: the clip box must be exactly one line tall, or the
+       roll-up leaves a sliver of the outgoing label showing */
+    padding: 0;
+    line-height: 1.5;
+}
+.nav-link {
+    overflow: hidden;
+}
+.nav-link .nav-link-inner {
+    display: block;
+    position: relative;
+    transition: transform 0.55s var(--ease-out-expo);
+}
+.nav-link .nav-link-inner::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 100%;
+    white-space: nowrap;
+    color: var(--gold-soft);
+}
+.nav-link:hover .nav-link-inner {
+    transform: translateY(-100%);
+}
+.nav-login::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    height: 1px;
+    width: 100%;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.55s var(--ease-out-expo);
+}
+.nav-login:hover::after {
+    transform-origin: left;
+    transform: scaleX(1);
+}
+
+/* A dark circle centred on the logo mark, sized so only its bottom arc
+   peeks out from under the bar once the nav sticks. The circle sits in a
+   wrapper clipped to the bar's bottom edge, so the two-thirds of it that
+   overlap the translucent header never paint (which would otherwise show
+   as a darker patch inside the bar). Geometry: bar is 63px tall and the
+   the circle is 86px across sitting flush with the top of the bar, so it
+   hangs 23px proud of it. The mark is nudged down to y=43 — the centre of
+   the circle, and equally the centre of the whole bar-plus-circle
+   silhouette. No border on either, so the two read as one surface. */
+.nav-disc {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 200px;
+    height: 52px;
+    margin-left: -100px;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+.nav-disc i {
+    position: absolute;
+    top: -63px;
+    left: 57px;
+    width: 86px;
+    height: 86px;
+    border-radius: 50%;
+    background: var(--nav-solid);
+    transform: translateY(-30px);
+    opacity: 0;
+    /* leaving: fade as it retracts */
+    transition:
+        transform 0.9s var(--ease-out-expo),
+        opacity 0.5s var(--ease);
+}
+/* :not(.nav-hidden) matters — the bar slides fully out of view on
+   scroll-down, but the disc hangs below it and would otherwise be left
+   floating at the top of the page */
+.nav.scrolled:not(.nav-hidden) .nav-disc i {
+    transform: none;
+    opacity: 1;
+    /* arriving: solid before it moves, so it slides down as a finished disc
+       rather than developing on the way in */
+    transition:
+        transform 0.9s var(--ease-out-expo),
+        opacity 0s;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    justify-self: center;
+    position: relative;
+    z-index: 1;
+    /* the scrolled bar nudges the mark down 12px; the glow tracks it so it
+       stays centred on the hawk in either state */
+    --glow-y: 0px;
+    --lift: -4px;
+    transition: transform 0.75s var(--ease-out-expo);
+}
+.brand img {
+    height: 62px;
+    width: auto;
+    transform: none;
+    transition:
+        height 0.7s var(--ease-out-expo),
+        transform 0.85s var(--ease-out-expo);
+}
+.nav.scrolled .brand img {
+    height: 34px;
+    transform: translateY(12px);
+}
+/* ---- curved wordmark under the hawk ----
+   Hidden below 981px, where the bar is left-aligned and there is no room.
+   Each glyph is its own tspan (split in script.js) carrying two delays:
+   --in staggers left to right on load, --out runs the reverse so the ring
+   retracts last-letter-first when the bar goes compact. */
+.brand-arc {
+    display: none;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 190px;
+    height: 190px;
+    transform: translate(-50%, -50%);
+    overflow: visible;
+    pointer-events: none;
+}
+.brand-arc text {
+    font-family: "Inter Tight", sans-serif;
+    font-size: 8.6px;
+    font-weight: 500;
+    /* the site's own label tracking — it also walks the wordmark further
+       around the arc so the ends reach up level with the hawk */
+    letter-spacing: 0.34em;
+    fill: var(--gold);
+}
+.brand-arc tspan {
+    opacity: 0;
+    transition: opacity 0.3s var(--ease) var(--out, 0ms);
+}
+/* letter-spacing also lands after the final glyph, so text-anchor:middle was
+   centring the run plus a trailing 0.34em of nothing — which slid every glyph
+   backwards along the arc and left the wordmark riding ~2px higher on the
+   left than on the right. Dropping it on the last glyph re-centres the run. */
+.brand-arc tspan:last-child {
+    letter-spacing: 0;
+}
+body.loaded .brand-arc tspan {
+    opacity: 1;
+    transition-duration: 0.5s;
+    transition-delay: var(--in, 0ms);
+}
+/* wins on class count over the body.loaded rule above. The retract is
+   quicker than the entrance on purpose — the bar compacts in 0.7s and a
+   slow stagger leaves the first few letters stranded over the new fill. */
+.nav.scrolled .brand-arc tspan {
+    opacity: 0;
+    transition-duration: 0.3s;
+    transition-delay: var(--out, 0ms);
+}
+
+/* ---- hover: the outline mark inks itself in ---- */
+.brand-ink {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+        height 0.7s var(--ease-out-expo),
+        transform 0.85s var(--ease-out-expo),
+        opacity 0.55s var(--ease);
+}
+.brand::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 200%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    /* every stop stays in the gold hue — fading to `transparent` interpolates
+       through transparent black and leaves a visible ring */
+    background: radial-gradient(circle, rgba(184, 147, 79, 0.3) 0%, rgba(184, 147, 79, 0.15) 34%, rgba(184, 147, 79, 0.05) 56%, rgba(184, 147, 79, 0) 76%);
+    transform: translate(-50%, calc(-50% + var(--glow-y))) scale(0.55);
+    opacity: 0;
+    pointer-events: none;
+    z-index: -1;
+    transition:
+        opacity 0.6s var(--ease),
+        transform 0.9s var(--ease-out-expo);
+}
+.brand:hover,
+.brand:focus-visible {
+    transform: translateY(var(--lift));
+}
+.brand:hover .brand-ink,
+.brand:focus-visible .brand-ink {
+    opacity: 1;
+}
+.brand:hover::after,
+.brand:focus-visible::after {
+    opacity: 1;
+    transform: translate(-50%, calc(-50% + var(--glow-y))) scale(1);
+}
+/* smaller mark in the sticky bar, so a shallower lift */
+.nav.scrolled .brand {
+    --lift: -2px;
+}
+
+.nav-cart {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    color: var(--cream);
+    -webkit-tap-highlight-color: transparent;
+}
+.nav-cart svg {
+    width: 19px;
+    height: 19px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.5s var(--ease-out-expo);
+}
+.nav-cart:hover svg {
+    transform: translateY(-2px);
+}
+.cart-count {
+    position: absolute;
+    top: 1px;
+    right: 0;
+    min-width: 15px;
+    height: 15px;
+    padding: 0 4px;
+    background: var(--merlot);
+    color: var(--cream);
+    font-size: 9px;
+    font-weight: 500;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+        transform 0.35s var(--ease-out-expo),
+        opacity 0.3s var(--ease);
+}
+.cart-count[data-count="0"] {
+    opacity: 0;
+    transform: scale(0.5);
+}
+
+.nav-burger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 40px;
+    height: 40px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    -webkit-tap-highlight-color: transparent;
+}
+.nav-burger span {
+    display: block;
+    width: 22px;
+    height: 1px;
+    background: var(--cream);
+    transition:
+        transform 0.5s var(--ease-out-expo),
+        opacity 0.35s var(--ease);
+    transform-origin: center;
+}
+.nav-burger.open span:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+}
+.nav-burger.open span:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+}
+.nav-burger.open span:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+}
+
+/* ---- mobile drawer ---- */
+.drawer-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    background: rgba(18, 16, 16, 0.55);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s var(--ease);
+}
+.drawer-scrim.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+.drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 71;
+    width: min(360px, 90vw);
+    background: var(--ink-deep);
+    padding: clamp(26px, 5vw, 42px) clamp(26px, 5vw, 42px) 36px;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.75s var(--ease-out-expo);
+    overflow-y: auto;
+}
+.drawer::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 45%;
+    background: radial-gradient(80% 100% at 50% 100%, rgba(184, 147, 79, 0.1), transparent 70%);
+    pointer-events: none;
+}
+.drawer.open {
+    transform: none;
+}
+.drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--dark-line);
+    position: relative;
+    z-index: 1;
+}
+.drawer-brand img {
+    height: 34px;
+    width: auto;
+}
+.drawer-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 26px;
+    color: rgba(246, 242, 234, 0.5);
+    line-height: 1;
+    padding: 6px;
+    transition: color 0.35s var(--ease);
+}
+.drawer-close:hover {
+    color: var(--cream);
+}
+.drawer-links {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    position: relative;
+    z-index: 1;
+}
+.drawer-link {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    font-family: "Cormorant Garamond", serif;
+    font-size: 29px;
+    font-weight: 400;
+    color: rgba(246, 242, 234, 0.85);
+    padding: 14px 0;
+    border-bottom: 1px solid var(--dark-line-soft);
+    opacity: 0;
+    transform: translateX(24px);
+    transition:
+        color 0.4s var(--ease),
+        opacity 0.7s var(--ease-out-expo),
+        transform 0.7s var(--ease-out-expo);
+}
+.drawer.open .drawer-link {
+    opacity: 1;
+    transform: none;
+}
+.drawer.open .drawer-link:nth-child(1) {
+    transition-delay: 0.14s;
+}
+.drawer.open .drawer-link:nth-child(2) {
+    transition-delay: 0.2s;
+}
+.drawer.open .drawer-link:nth-child(3) {
+    transition-delay: 0.26s;
+}
+.drawer.open .drawer-link:nth-child(4) {
+    transition-delay: 0.32s;
+}
+.drawer.open .drawer-link:nth-child(5) {
+    transition-delay: 0.38s;
+}
+.drawer.open .drawer-link:nth-child(6) {
+    transition-delay: 0.44s;
+}
+.drawer.open .drawer-link:nth-child(7) {
+    transition-delay: 0.5s;
+}
+/* the numerals are gone — a gold hairline holds their place and draws itself
+   longer on hover, nudging the label right with it. Empty span, so it needs
+   align-self: it has no baseline of its own to hand the flex row. */
+.drawer-link .n {
+    flex: 0 0 auto;
+    align-self: center;
+    width: 16px;
+    height: 1px;
+    background: var(--gold);
+    opacity: 0.55;
+    transition:
+        width 0.45s var(--ease),
+        opacity 0.45s var(--ease);
+}
+.drawer-link:hover,
+.drawer-link:focus-visible {
+    color: var(--gold-soft);
+}
+.drawer-link:hover .n,
+.drawer-link:focus-visible .n,
+.drawer-link:active .n {
+    width: 34px;
+    opacity: 1;
+}
+.drawer-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--dark-line);
+    padding-top: 22px;
+    margin-top: 18px;
+    position: relative;
+    z-index: 1;
+}
+.drawer-login {
+    font-size: 10.5px;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: rgba(246, 242, 234, 0.55);
+    transition: color 0.35s var(--ease);
+}
+.drawer-login:hover {
+    color: var(--gold);
+}
+
+/* ============================================================ 07. HERO */
+/* The hero is a scroll track wrapped around a pinned stage. Mobile-first the
+   track is exactly one screen, so nothing changes: the stage sticks for zero
+   distance and the section behaves as it always did. In video mode at 981px+
+   the track runs two screens and script.js scrubs the hero film across the
+   extra one — see the hero mode switch at the top of index.html. */
+.hero {
+    position: relative;
+    /* the status card's offset from the bottom edge */
+    --hero-floor: clamp(46px, 9vh, 92px);
+}
+.hero-track {
+    position: relative;
+    height: 100svh;
+    min-height: 640px;
+}
+.hero-stage {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    min-height: 640px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+@media (min-width: 981px) {
+    /* video mode only — one extra screen of scrolling for the film to play
+       through. In image mode the track stays at the 100svh set above. */
+    .hero[data-hero-mode="video"] .hero-track {
+        height: 200svh;
+        min-height: 1280px;
+    }
+}
+/* the <video> stays in the markup in image mode but is never shown and never
+   given a src, so it costs nothing */
+.hero:not([data-hero-mode="video"]) .hero-vid {
+    display: none;
+}
+/* The drift lives on the wrapper, the grade lives on the image, and keeping
+   them on separate elements is the whole point.
+
+   With both on the <img>, the browser had to re-run a brightness/contrast/
+   saturate pass over a full-viewport photograph on every single frame of a
+   26-second animation, because a filtered element whose transform is changing
+   cannot be cached and simply re-composited. Measured on a throttled machine
+   that cost ~12ms a frame — and removing either one alone recovered all of it,
+   which is what gave the interaction away.
+
+   Split like this the image is filtered once and promoted, and the wrapper's
+   transform is a compositor-only operation. Both effects survive intact.
+
+   The wrapper fills the stage and the image fills the wrapper, so animating
+   the parent is visually identical to animating the child. NOTE: in video mode
+   .hero-vid is also inside this wrapper, so the film would inherit the drift —
+   worth a look when that mode is switched back on. */
+.hero-media {
+    position: absolute;
+    inset: -10% 0;
+    will-change: transform;
+    animation: heroDrift 26s var(--ease-in-out) infinite alternate;
+}
+.hero-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* half of the daypart grade — the light on the hillside. The other half
+       is the tint wash on .hero-stage::before. See 01b. */
+    filter: brightness(var(--sky-bright)) contrast(var(--sky-contrast)) saturate(var(--sky-sat));
+    transition: filter 2.4s var(--ease-in-out);
+}
+/* the tint wash. Sits above the photo and below the vignette (::after, same
+   z-index, later in DOM order) so the fog canvas at z-index 2 stays cream and
+   still reads as fog rather than as coloured haze. .hero-stage is a stacking
+   context via position:sticky, so the blend is contained to the hero. */
+.hero-stage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(180deg, var(--sky-top), var(--sky-bot));
+    mix-blend-mode: var(--sky-blend);
+    opacity: var(--sky-a);
+    transition:
+        opacity 2.4s var(--ease-in-out),
+        mix-blend-mode 0s;
+}
+@media (prefers-reduced-motion: reduce) {
+    .hero-media img,
+    .hero-vid,
+    .hero-stage::before {
+        transition: none;
+    }
+}
+/* the film sits over the still and cross-fades in once its first frame has
+   decoded, so there is never a black gap while it loads */
+.hero-vid {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    /* same daypart grade as the still, so the cross-fade from photo to film
+       in video mode never jumps colour */
+    filter: brightness(var(--sky-bright)) contrast(var(--sky-contrast)) saturate(var(--sky-sat));
+    transition:
+        opacity 1.1s var(--ease),
+        filter 2.4s var(--ease-in-out);
+    pointer-events: none;
+}
+.hero-vid.is-ready {
+    opacity: 1;
+}
+@keyframes heroDrift {
+    0% {
+        transform: scale(1.1) translate3d(0, 0, 0);
+    }
+    100% {
+        transform: scale(1.2) translate3d(-1.5%, -1.5%, 0);
+    }
+}
+.hero-stage::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: radial-gradient(120% 92% at 50% 36%, rgba(18, 16, 16, 0.2), rgba(18, 16, 16, 0.5) 66%, rgba(18, 16, 16, 0.76)), linear-gradient(180deg, rgba(18, 16, 16, 0.62), rgba(18, 16, 16, 0.14) 32%, rgba(18, 16, 16, 0.24) 62%, rgba(18, 16, 16, 0.5));
+}
+.fog-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* hairline frame — reads as a mounted print */
+/* scroll-linked exit: --exit runs 0 -> 1 across the first viewport and
+   drives the whole hero out at staggered speeds */
+.hero-dim {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    background: var(--ink-deep);
+    opacity: calc(var(--exit, 0) * 0.55);
+}
+.hero-inner {
+    position: relative;
+    z-index: 4;
+    /* centred on phones; .hero-inner, the h1, the lede and the CTA all go
+       back to left-aligned from 561px up (see the responsive section) */
+    text-align: center;
+    color: var(--cream);
+    padding: 0 var(--gutter);
+    width: 100%;
+    max-width: var(--maxw);
+    margin: 0 auto;
+    will-change: transform, opacity;
+    transform: translate3d(0, calc(var(--exit, 0) * -70px), 0);
+    opacity: calc(1 - var(--exit, 0) * 1.35);
+}
+.hero h1 {
+    font-size: clamp(56px, 10.4vw, 138px);
+    line-height: 0.9;
+    font-weight: 300;
+    color: var(--cream);
+    letter-spacing: -0.02em;
+    text-shadow: 0 4px 40px rgba(0, 0, 0, 0.32);
+}
+.hero h1 .l1,
+.hero h1 .l2 {
+    display: block;
+    will-change: transform;
+}
+/* the two lines drift apart on the way out */
+.hero h1 .l2 {
+    transform: translate3d(0, calc(var(--exit, 0) * -26px), 0);
+}
+.hero h1 .l1 {
+    transform: translate3d(0, calc(var(--exit, 0) * -68px), 0);
+}
+.hero h1 .l2 {
+    font-weight: 400;
+    letter-spacing: 0.005em;
+}
+.hero h1 .l1 {
+    font-style: italic;
+    font-weight: 300;
+    letter-spacing: 0.005em;
+    margin-top: -0.02em;
+}
+.hero h1 {
+    max-width: 14ch;
+    margin-inline: auto;
+}
+/* hero words rise after the loader lifts */
+.hero h1 .split-word > i {
+    transition:
+        transform 1.35s var(--ease-out-expo),
+        opacity 0.9s linear;
+}
+body.loaded .hero h1 .split-word > i {
+    transform: none;
+    opacity: 1;
+}
+
+/* sits between the headline and the button. Enters after the headline lines
+   and before the CTA (0.7s vs the CTA's 0.85s), and drifts out at a rate
+   between the two h1 lines and the block as a whole. */
+.hero-lede {
+    margin-top: clamp(20px, 2.4vw, 30px);
+    max-width: 48ch;
+    margin-inline: auto;
+    /* matched to .story-copy p so body copy reads at one size sitewide */
+    font-size: 17.5px;
+    line-height: 1.78;
+    font-weight: 300;
+    color: rgba(246, 242, 234, 0.82);
+    text-shadow: 0 1px 14px rgba(0, 0, 0, 0.45);
+    will-change: transform, opacity;
+    transform: translate3d(0, calc(24px + var(--exit, 0) * -14px), 0);
+    opacity: 0;
+    transition:
+        opacity 1.2s var(--ease-out-expo) 0.7s,
+        transform 1.2s var(--ease-out-expo) 0.7s;
+}
+body.loaded .hero-lede {
+    opacity: 1;
+    transform: translate3d(0, calc(var(--exit, 0) * -14px), 0);
+}
+
+.hero-cta {
+    margin-top: clamp(30px, 3.4vw, 44px);
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+        opacity 1.2s var(--ease-out-expo) 0.85s,
+        transform 1.2s var(--ease-out-expo) 0.85s;
+}
+body.loaded .hero-cta {
+    opacity: 1;
+    transform: none;
+}
+
+/* ---- glass status card ---- */
+.hero-card {
+    /* absolute to the hero stage at every width — it holds its corner while
+       the stage is pinned and then scrolls away with it, so it never crosses
+       onto the section below and never needs the old fixed-position pin or
+       its scroll-driven push. Below the nav's z-index so the bar still
+       passes over it. */
+    position: absolute;
+    z-index: 40;
+    /* Below 981px this is a full-bleed bar sitting on the hero's bottom
+       edge — still absolute to the stage, so it scrolls away with the hero
+       instead of following the page down. Two children: the .hc-when stack
+       and the link. They sit side by side when the width allows and stack
+       when it does not. From 981px up it goes back to the corner card. */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    padding: 13px var(--gutter) 15px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 9px 18px;
+    color: var(--cream);
+    /* scrim strength tracks the daypart (01b) — the bright, fog-heavy bands
+       need more of it behind the type than the dark ones do, or the address
+       goes to mush against a pale hillside */
+    background: rgba(18, 16, 16, var(--sky-scrim, 0.3));
+    -webkit-backdrop-filter: blur(16px) saturate(1.25);
+    backdrop-filter: blur(16px) saturate(1.25);
+    border: 0;
+    border-top: 1px solid rgba(246, 242, 234, 0.16);
+    border-radius: 0;
+    box-shadow: 0 40px 70px -50px rgba(0, 0, 0, 0.9);
+    opacity: 0;
+    transition:
+        opacity 1.1s var(--ease-out-expo) 1s,
+        background-color 2.4s var(--ease-in-out),
+        border-color 0.5s var(--ease);
+}
+body.loaded .hero-card {
+    opacity: 1;
+}
+.hero-card:hover {
+    border-color: rgba(221, 194, 148, 0.4);
+}
+/* groups the label and the hours so the bar has exactly two children to
+   space apart. Dissolved with display: contents at 981px, which hands the
+   two spans back to the card's own column. */
+.hc-when {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.hc-label {
+    font-size: 9.5px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold-soft);
+    margin-bottom: 0;
+}
+.hc-status {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 20px;
+    line-height: 1.1;
+    color: var(--cream);
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.hc-line {
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+}
+/* the qualifier sits under the state in the UI face, indented past the dot
+   so it hangs off the word above it rather than off the bullet */
+.hc-detail {
+    font-family: "Inter Tight", system-ui, sans-serif;
+    font-size: 11.5px;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+    padding-left: 16px;
+    color: rgba(246, 242, 234, 0.6);
+}
+/* the live dot. Colour carries the state, so the words have to as well —
+   "Open now" and "Closed" are never told apart by the dot alone. */
+.hc-dot {
+    position: relative;
+    flex: none;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--dot, rgba(246, 242, 234, 0.4));
+    /* lifted off the baseline so it optically centres against the cap height
+       of the serif rather than sitting on the line */
+    transform: translateY(-5px);
+    transition: background-color 0.6s var(--ease);
+}
+/* the pulse is a ring easing out from under the dot, not the dot itself
+   scaling — a breathing dot reads as a loading spinner */
+.hc-dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--dot, transparent);
+    opacity: 0;
+}
+.hc-status[data-state="open"] .hc-dot::after,
+.hc-status[data-state="soon"] .hc-dot::after {
+    animation: hcPulse 2.8s var(--ease-out-expo) infinite;
+}
+@keyframes hcPulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+    70%,
+    100% {
+        transform: scale(3.6);
+        opacity: 0;
+    }
+}
+.hc-status[data-state="open"] {
+    --dot: #8fae74;
+}
+.hc-status[data-state="soon"] {
+    --dot: var(--gold-lit);
+}
+.hc-status[data-state="closed"] {
+    --dot: rgba(246, 242, 234, 0.34);
+}
+.hc-now {
+    white-space: nowrap;
+}
+.hc-status[data-state="soon"] .hc-detail {
+    color: var(--gold-soft);
+}
+@media (prefers-reduced-motion: reduce) {
+    .hc-dot::after {
+        animation: none !important;
+    }
+}
+/* the street address is the one piece the bar drops — it is in the footer
+   and in the visit section, and it is what makes the block tall */
+.hc-meta {
+    display: none;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: rgba(246, 242, 234, 0.62);
+    padding-bottom: 16px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid rgba(246, 242, 234, 0.14);
+}
+.hc-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    font-size: 9.5px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: 500;
+    white-space: nowrap;
+    color: var(--gold-soft);
+}
+.hc-link .arr {
+    transition: transform 0.55s var(--ease-out-expo);
+}
+.hero-card:hover .hc-link .arr {
+    transform: translateX(6px);
+}
+
+/* ============================================================ 08. SECTION SHELL */
+.section {
+    padding: clamp(96px, 10vw, 190px) var(--gutter);
+    position: relative;
+}
+.wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+.section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 32px;
+    flex-wrap: wrap;
+    margin-bottom: clamp(48px, 6vw, 84px);
+}
+.section-head h2 {
+    font-size: clamp(40px, 5.6vw, 82px);
+    max-width: 15ch;
+    margin-top: 20px;
+}
+.section-head .text-link {
+    flex-shrink: 0;
+    margin-bottom: 10px;
+}
+/* ============================================================ 09. ACCOLADES MARQUEE */
+.accolades {
+    background: var(--ink);
+    color: var(--cream);
+    padding: clamp(26px, 3vw, 40px) 0;
+    overflow: hidden;
+    position: relative;
+    border-top: 1px solid var(--dark-line-soft);
+    border-bottom: 1px solid var(--dark-line-soft);
+}
+.accolades::before,
+.accolades::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: clamp(60px, 12vw, 200px);
+    z-index: 2;
+    pointer-events: none;
+}
+.accolades::before {
+    left: 0;
+    background: linear-gradient(90deg, var(--ink), transparent);
+}
+.accolades::after {
+    right: 0;
+    background: linear-gradient(270deg, var(--ink), transparent);
+}
+.marquee {
+    display: flex;
+    width: max-content;
+    will-change: transform;
+}
+.marquee-row {
+    display: flex;
+    align-items: center;
+    gap: clamp(38px, 5vw, 76px);
+    padding-right: clamp(38px, 5vw, 76px);
+}
+.acc {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 12px;
+    white-space: nowrap;
+}
+.acc .pts {
+    font-family: "Cormorant Garamond", serif;
+    font-size: clamp(26px, 2.6vw, 38px);
+    color: var(--gold-soft);
+    line-height: 1;
+}
+.acc .src {
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: rgba(246, 242, 234, 0.55);
+}
+.acc-sep {
+    width: 5px;
+    height: 5px;
+    border: 1px solid rgba(184, 147, 79, 0.6);
+    transform: rotate(45deg);
+    flex-shrink: 0;
+}
+
+/* ============================================================ 10. STORY */
+.story {
+    display: grid;
+    grid-template-columns: minmax(0, 0.94fr) minmax(0, 1fr);
+    gap: clamp(40px, 7vw, 118px);
+    align-items: center;
+    background: var(--cream);
+}
+
+/* ---- paper fiber ----
+   Variant 01 from story-texture-studies.html. Static warm noise, multiplied
+   into the flat cream so the field reads as letterpress stock instead of
+   paint. Coarser than the sitewide .grain layer and, unlike it, it does not
+   move — the two are meant to sit on top of each other.
+
+   .vineyard and .vine-stats butt together with no gap and share the same
+   cream, so both carry it or the seam between them shows. `isolation` keeps
+   the multiply from reaching past each section into whatever sits behind it.
+   No overflow:hidden anywhere here — .story-photo-inset deliberately hangs
+   off the section edges. */
+.story,
+.vineyard,
+.vine-stats,
+.club {
+    /* intensity dial carried over from the studies file — set --tex per
+       section to push one lighter or heavier without touching the layer */
+    --tex: 1;
+    isolation: isolate;
+}
+.vine-stats {
+    /* .story and .vineyard get theirs from .section; this band is not one */
+    position: relative;
+}
+.story::before,
+.vineyard::before,
+.vine-stats::before,
+.club::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.62' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+    mix-blend-mode: multiply;
+    opacity: calc(0.3 * var(--tex));
+}
+/* lift the real content off the texture layer. Anything absolutely
+   positioned inside these sections is nested a level down, so this only
+   touches the direct column/wrapper children. */
+.story > *,
+.vineyard > *,
+.vine-stats > * {
+    position: relative;
+    z-index: 1;
+}
+/* .club-mark is a direct child and is absolutely positioned — it has to be
+   excluded or the `position: relative` above would drop the hawk crest back
+   into flow and blow out the section. It already sits at z-index 0 with the
+   texture, and paints over it by document order. */
+.club > *:not(.club-mark) {
+    position: relative;
+    z-index: 1;
+}
+
+.story-photo-wrap {
+    position: relative;
+}
+
+.story-photo {
+    aspect-ratio: 4/5;
+    width: 100%;
+    overflow: hidden;
+    clip-path: polygon(12% 0, 100% 0, 100% 100%, 0 100%, 0 12%);
+}
+.story-photo img {
+    width: 100%;
+    height: 114%;
+    object-fit: cover;
+    will-change: transform;
+}
+.story-photo-inset {
+    display: none;
+    position: absolute;
+    bottom: -6%;
+    right: -7%;
+    width: 46%;
+    overflow: hidden;
+    border: 10px solid var(--cream);
+    box-shadow: 0 40px 70px -40px rgba(28, 24, 21, 0.5);
+}
+.story-photo-inset img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.story-copy {
+    max-width: 500px;
+}
+.story-copy h2 {
+    font-size: clamp(40px, 5.4vw, 78px);
+    margin: 22px 0 28px;
+}
+.story-copy p {
+    font-size: 17.5px;
+    line-height: 1.78;
+    color: var(--body);
+    margin-bottom: 20px;
+    font-weight: 300;
+}
+.story-copy .text-link {
+    margin-top: 18px;
+}
+.signature {
+    font-family: "Cormorant Garamond", serif;
+    font-style: italic;
+    font-size: 27px;
+    color: var(--ink);
+    margin-top: 30px;
+    opacity: 0.9;
+}
+.signature + .text-link {
+    margin-top: 40px;
+}
+.signature small {
+    display: block;
+    font-family: "Inter Tight", sans-serif;
+    font-style: normal;
+    font-size: 9.5px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--body-soft);
+    margin-top: 8px;
+}
+
+/* ============================================================ 11. WINES (dark) */
+.wines {
+    background: var(--ink);
+    color: var(--cream);
+    position: relative;
+    /* NOT clipped — the seal has to break the section's top edge to sit on
+       the boundary with the cream above. The fog canvas that used to rely on
+       this clip carries its own mask (see .fog-wines), so nothing leaks. */
+}
+/* capped to the top of the section so the drift reads behind the headline.
+   The fog's own density peaks mid-canvas, so the canvas height is what
+   places the band, and the mask only softens its two ends. */
+.fog-wines {
+    z-index: 0;
+    top: -20%;
+    bottom: auto;
+    height: 65%;
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 20%, #000 80%, transparent);
+    mask-image: linear-gradient(180deg, transparent, #000 20%, #000 80%, transparent);
+}
+.wines .wrap {
+    position: relative;
+    z-index: 1;
+}
+.wines .eyebrow,
+.wines .section-head .text-link {
+    color: var(--gold);
+}
+.wines .section-head h2 {
+    color: var(--cream);
+    max-width: 21ch;
+}
+/* eyebrow + heading. The seal used to sit inline here on small screens; it
+   is now absolutely positioned on the section seam at every width (see
+   .seal), so this is a single-child stack. */
+.section-head-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+}
+@media (min-width: 561px) {
+    .section-head-copy {
+        flex-direction: row;
+        align-items: center;
+        gap: clamp(14px, 3vw, 32px);
+    }
+}
+/* Photographed wax stamp. It lives inside the headline lockup in the markup
+   but is taken out of flow at every width, so .section-head-copy is really
+   just the eyebrow + heading.
+
+   One placement and one size at every width: pressed onto the wines section's
+   top-right corner, straddling the boundary with the cream story section above
+   and cropped by the right edge of the screen.
+
+   It is positioned against .wines .wrap, which is centred in the viewport, so
+   `right: calc(50% - 50vw)` walks its right edge back out to the viewport edge
+   at any width — the crop is then a fixed share of the seal rather than
+   whatever the gutter happens to leave over. Vertically, negating the
+   section's own top padding puts `top: 0` back on the section's top edge —
+   the translateY then sets how the seal splits across that edge. At -65%
+   roughly two thirds of it sits up on the cream story section and a third
+   presses into the dark.
+
+   The only thing that moves across breakpoints is how far it is pushed off the
+   right edge: a shallower crop on phones, where the screen is too narrow to
+   give away a quarter of the hawk. See the 768px rule below. */
+.seal {
+    display: block;
+    position: absolute;
+    left: auto;
+    right: calc(50% - 50vw);
+    top: calc(-1 * clamp(96px, 10vw, 190px));
+    height: clamp(190px, 20vw, 290px);
+    width: auto;
+    object-fit: contain;
+    /* No --seal-shift in this transform, on purpose. The scroll loop writes
+       that var as an inline style and only above 768px, so if this rule read
+       it, resizing a desktop window down to phone width would leave the seal
+       holding whatever parallax offset was last written — frozen, with nothing
+       left to update it. The drift belongs to the breakpoint that drives it. */
+    transform: translate(13%, -65%) rotate(11deg);
+    will-change: transform;
+    z-index: 4;
+    pointer-events: none;
+    filter: drop-shadow(0 22px 34px rgba(0, 0, 0, 0.5));
+}
+/* Wider than a phone there is room to give the crop away, so the seal is
+   pushed further off the edge — a deeper bleed reads as the stamp running off
+   the page rather than sitting beside it. This is also where the parallax
+   lives: --seal-shift is written inline by the scroll loop in script.js for a
+   slow drift of about ±60px, and stays 0 under reduced motion. Position, size
+   and shadow are all inherited from the rule above. */
+@media (min-width: 768px) {
+    .wines .seal {
+        transform: translate(26%, calc(-65% + var(--seal-shift, 0px))) rotate(11deg);
+    }
+}
+
+.wine-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(20px, 2.8vw, 46px);
+    position: relative;
+    z-index: 1;
+}
+.wine-card {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+.wine-bottle {
+    aspect-ratio: 3/4;
+    width: 100%;
+    border: 1px solid rgba(184, 147, 79, 0.16);
+    position: relative;
+    overflow: hidden;
+    /* The bar-back photo is exactly 3:4, the same ratio as this box, so
+       cover lands the countertop under the bottle with no cropping. The
+       scrim keeps the shelving from competing with the label. */
+    background:
+        radial-gradient(120% 78% at 50% 16%, rgba(184, 147, 79, 0.14), transparent 62%),
+        linear-gradient(180deg, rgba(20, 16, 14, 0.62), rgba(20, 16, 14, 0.44) 50%, rgba(20, 16, 14, 0.62)),
+        url("assets/product-bg.webp") center / cover no-repeat;
+    /* zoomed past the box so each card can pan to a different slice of the
+       bar back. Only the horizontal moves -- the vertical stays centred, so
+       the countertop line sits at the same height in all three cards. */
+    background-size:
+        auto,
+        auto,
+        138% auto;
+    transition:
+        border-color 0.8s var(--ease),
+        box-shadow 0.8s var(--ease);
+}
+.wine-card:nth-child(2) .wine-bottle {
+    background-position: center, center, 15% center;
+}
+.wine-card:nth-child(3) .wine-bottle {
+    background-position: center, center, 85% center;
+}
+.wine-card:hover .wine-bottle {
+    border-color: rgba(184, 147, 79, 0.42);
+    box-shadow: 0 40px 80px -40px rgba(0, 0, 0, 0.85);
+}
+/* gold sheen sweep on hover */
+.wine-bottle::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 38%, rgba(221, 194, 148, 0.16) 50%, transparent 62%);
+    transform: translateX(-110%);
+    transition: transform 1.1s var(--ease-out-expo);
+    pointer-events: none;
+    z-index: 2;
+}
+.wine-card:hover .wine-bottle::after {
+    transform: translateX(110%);
+}
+.wine-bottle img {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    height: 80%;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 30px 38px rgba(0, 0, 0, 0.6));
+    transition: transform 0.9s var(--ease-out-expo);
+    z-index: 1;
+}
+.wine-card:hover .wine-bottle img {
+    transform: translate(-50%, -54%) scale(1.04);
+}
+/* ---- vintage rail ----
+   One hairline threading all three cards. Each card carries its own segment
+   bled out by half the grid gap, so neighbouring segments meet in the gutter
+   and read as a single continuous rule rather than three separate rules. */
+.wine-meta {
+    position: relative;
+    --rail-bleed: 0px;
+    /* How far the copy sits clear of the tick. This used to be applied only on
+       hover, as a translateX — it is the resting position now, so the text
+       holds still under the pointer and only the tick and the rail react. */
+    --wm-indent: 26px;
+    /* the drop from the rail to the top of .wm-head. The tick spans this gap,
+       so it is a variable rather than three copies of the same number */
+    --wm-rail-gap: 26px;
+    /* the year's own metrics, pinned rather than left to `normal`, because the
+       tick's resting length is measured off them — see .wm-head::before */
+    --year-size: 10px;
+    --year-lh: 1.1;
+    padding-top: var(--wm-rail-gap);
+}
+.wine-meta::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: calc(-1 * var(--rail-bleed));
+    right: calc(-1 * var(--rail-bleed));
+    height: 1px;
+    background: rgba(184, 147, 79, 0.32);
+    transition: background 0.8s var(--ease);
+}
+.wine-card:hover .wine-meta::before {
+    background: rgba(184, 147, 79, 0.55);
+}
+/* wraps year, name and appellation. The tick spans exactly this block, so
+   "down to the bottom of the appellation" needs no measured height — it is
+   100% of the wrapper plus the rail's 26px offset above it. */
+.wm-head {
+    position: relative;
+    /* padding, not margin — an absolutely positioned child resolves `left: 0`
+       against the padding box, so the tick below stays pinned to the card's
+       edge while the year, name and appellation clear it */
+    padding-left: var(--wm-indent);
+}
+.wine-meta .vintage {
+    font-size: var(--year-size);
+    line-height: var(--year-lh);
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+}
+/* The tick that hangs the year off the rail. At rest it drops from the rail to
+   the bottom of the year's line box — the gap above .wm-head plus the year's
+   own height — so it brackets the vintage exactly rather than stopping short
+   in the whitespace above it. That is why --year-size and --year-lh are pinned
+   on .wine-meta instead of the year being left at line-height: normal: this
+   length has to be computable, and `normal` is whatever the loaded font says. */
+.wm-head::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: calc(-1 * var(--wm-rail-gap));
+    width: 1px;
+    height: calc(var(--wm-rail-gap) + var(--year-size) * var(--year-lh));
+    background: var(--gold);
+    opacity: 0.75;
+    transition:
+        height 0.75s var(--ease-out-expo),
+        opacity 0.7s var(--ease);
+}
+/* the text steps aside and the tick runs the full depth of the block */
+.wine-card:hover .wm-head::before {
+    opacity: 1;
+    height: calc(100% + var(--wm-rail-gap));
+}
+.wine-meta h3 {
+    font-family: "Cormorant Garamond", serif;
+    font-weight: 400;
+    font-size: 32px;
+    line-height: 1.04;
+    color: var(--cream);
+}
+.wine-meta .appel {
+    font-size: 9.5px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: rgba(246, 242, 234, 0.45);
+    /* no bottom margin — it would extend .wm-head past the appellation and
+       the tick would overrun it. The gap moves onto .note instead. */
+    margin: 10px 0 0;
+}
+.wine-meta .note {
+    font-size: 15.5px;
+    line-height: 1.68;
+    color: rgba(246, 242, 234, 0.62);
+    font-weight: 300;
+    /* left margin clears the tick — see --wm-indent on .wine-meta */
+    margin: 16px 0 22px var(--wm-indent);
+    max-width: 34ch;
+}
+.wine-meta .shop {
+    font-size: 10.5px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--gold);
+    display: inline-flex;
+    gap: 0.6em;
+    align-items: center;
+    position: relative;
+    padding-bottom: 7px;
+    /* margin, not padding — the underline is an ::after at left:0/width:100%,
+       so padding here would drag it out past the text */
+    margin-left: var(--wm-indent);
+}
+.wine-meta .shop::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 1px;
+    width: 100%;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.6s var(--ease-out-expo);
+}
+.wine-card:hover .shop::after {
+    transform-origin: left;
+    transform: scaleX(1);
+}
+.wine-meta .shop .arr {
+    transition: transform 0.6s var(--ease-out-expo);
+}
+.wine-card:hover .shop .arr {
+    transform: translateX(6px);
+}
+
+/* ============================================================ 12. VISIT (full bleed) */
+.visit {
+    position: relative;
+    height: clamp(580px, 88vh, 880px);
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+}
+.visit-media {
+    position: absolute;
+    inset: -12% 0;
+    will-change: transform;
+}
+.visit-media .slides {
+    position: absolute;
+    inset: 0;
+}
+/* The incoming frame doesn't cross-fade — it wipes over the one leaving from
+   the edge it travelled in from, while its photo counter-drifts underneath the
+   opening mask. The outgoing frame stays lit and pushes the other way, so the
+   two separate in depth instead of dissolving into mush. `.slides` carries
+   dir-next / dir-prev (set in script.js) to mirror the whole move. */
+.visit-media .slide {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    clip-path: inset(0 0 0 100%);
+    /* opacity and visibility snap rather than ease: the clip is what does the
+       revealing, and fading them in parallel double-exposes the two frames
+       through the open part of the wipe. Retiring slides only ever snap while
+       fully covered by the incoming one. */
+    transition: clip-path 1.6s var(--ease-out-expo);
+}
+.slides.dir-prev .slide {
+    clip-path: inset(0 100% 0 0);
+}
+/* the frame being covered holds its light until the wipe has passed over it */
+.visit-media .slide.is-active,
+.visit-media .slide.is-leaving {
+    opacity: 1;
+    visibility: visible;
+    clip-path: inset(0 0 0 0);
+}
+.visit-media .slide.is-active {
+    z-index: 2;
+}
+.visit-media .slide.is-leaving {
+    z-index: 1;
+}
+.visit-media .slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* parked against the wipe, so the photo slides one way as the mask
+       opens the other — the frame reads as uncovered, not pushed on */
+    transform: scale(1.16) translate3d(-5%, 0, 0);
+    transition: transform 2s var(--ease-out-expo);
+}
+.slides.dir-prev .slide img {
+    transform: scale(1.16) translate3d(5%, 0, 0);
+}
+/* the settled frame is a still — the motion is the wipe, not a drift */
+.visit-media .slide.is-active img {
+    transform: scale(1) translate3d(0, 0, 0);
+}
+.visit-media .slide.is-leaving img {
+    transform: scale(1.09) translate3d(3.5%, 0, 0);
+}
+.slides.dir-prev .slide.is-leaving img {
+    transform: scale(1.09) translate3d(-3.5%, 0, 0);
+}
+
+/* ---- slider controls ---- */
+.slider-nav {
+    position: absolute;
+    z-index: 4;
+    right: var(--gutter);
+    bottom: clamp(30px, 4vw, 56px);
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    color: var(--cream);
+}
+.sl-btn {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 1px solid rgba(246, 242, 234, 0.35);
+    background: rgba(18, 16, 16, 0.18);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    color: var(--cream);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+        color 0.5s var(--ease),
+        border-color 0.5s var(--ease);
+}
+.sl-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--cream);
+    border-radius: 50%;
+    transform: scale(0);
+    transition: transform 0.55s var(--ease-out-expo);
+}
+.sl-btn:hover {
+    color: var(--ink);
+    border-color: var(--cream);
+}
+.sl-btn:hover::before {
+    transform: scale(1);
+}
+.sl-btn:active {
+    transform: scale(0.94);
+}
+.sl-btn svg {
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.5s var(--ease-out-expo);
+}
+/* no hover nudge here — the chevron sits inside a circle, so any
+   translate reads as a centring error rather than as motion */
+.sl-btn:hover svg {
+    transform: scale(1.08);
+}
+.sl-count {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 10.5px;
+    letter-spacing: 0.24em;
+    color: rgba(246, 242, 234, 0.72);
+    font-variant-numeric: tabular-nums;
+}
+.sl-count b {
+    font-weight: 500;
+    color: var(--cream);
+}
+.sl-track {
+    display: block;
+    width: clamp(48px, 7vw, 92px);
+    height: 1px;
+    background: rgba(246, 242, 234, 0.28);
+    position: relative;
+}
+.sl-track i {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 25%;
+    background: var(--gold-soft);
+    /* paced to the wipe so the counter and the picture land together */
+    transition: transform 1.2s var(--ease-out-expo);
+}
+.visit::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(72deg, rgba(18, 16, 16, 0.9), rgba(18, 16, 16, 0.45) 54%, rgba(18, 16, 16, 0.1)), linear-gradient(0deg, rgba(18, 16, 16, 0.55), transparent 34%);
+    pointer-events: none;
+}
+/* Hairline brackets in the two top corners — the arms of a frame the eye
+   completes on its own. They hang off --gutter, the same margin the rest of
+   the page is set to, and their top offset matches the slider nav's bottom
+   offset so the section is inset by the same amount top and bottom. (The nav
+   itself only shares the right edge on wide screens; it moves to bottom-left
+   further down.)
+
+   z-index 3 puts them over the scrim (.visit::after) and under the slider nav
+   at 4. Only the top border and the outer one are drawn, so each corner is an
+   L rather than a box. */
+.visit-corner {
+    position: absolute;
+    z-index: 3;
+    top: clamp(30px, 4vw, 56px);
+    /* the arms extend and retract with --vp, which the scroll loop (04) peaks
+       at 1 with the section centred. 0.42 is the closed length. --vp defaults
+       to 1 so the frame is open at full size before the first scroll frame
+       lands, under reduced motion, and if the script never runs at all. */
+    --vc-arm: clamp(64px, 9vw, 130px);
+    width: calc(var(--vc-arm) * (0.42 + 0.58 * var(--vp, 1)));
+    height: calc(var(--vc-arm) * (0.42 + 0.58 * var(--vp, 1)));
+    border: 0 solid rgba(246, 242, 234, 0.5);
+    border-top-width: 1px;
+    pointer-events: none;
+}
+.vc-l {
+    left: var(--gutter);
+    border-left-width: 1px;
+}
+.vc-r {
+    right: var(--gutter);
+    border-right-width: 1px;
+}
+.visit-block {
+    position: relative;
+    z-index: 2;
+    color: var(--cream);
+    padding: clamp(44px, 6vw, 92px) var(--gutter);
+    max-width: 780px;
+}
+.visit-block .eyebrow {
+    color: var(--gold-soft);
+}
+.visit-block h2 {
+    font-size: clamp(42px, 5.8vw, 86px);
+    margin: 22px 0 20px;
+    color: var(--cream);
+}
+.visit-block .where {
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: rgba(246, 242, 234, 0.78);
+    margin-bottom: 34px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.visit-block .where .dotsep {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--gold);
+    display: inline-block;
+}
+
+/* ============================================================ 13. PROCESS — From Fog to Glass */
+.process {
+    background: var(--cream-warm);
+    position: relative;
+}
+.process .wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.15fr);
+    gap: clamp(40px, 6vw, 110px);
+    align-items: start;
+}
+.process-intro {
+    position: sticky;
+    top: clamp(88px, 11vh, 120px);
+}
+.process-media {
+    margin-top: clamp(30px, 3.4vw, 46px);
+}
+.pm-stack {
+    position: relative;
+    width: 100%;
+    /* kept shallow so the whole sticky column still fits shorter viewports */
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    background: var(--cream-deep);
+}
+.pm-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transform: scale(1.07);
+    transition:
+        opacity 1s var(--ease-out-expo),
+        transform 1.7s var(--ease-out-expo);
+}
+.pm-img.is-active {
+    opacity: 1;
+    transform: scale(1);
+}
+.pm-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding-top: 16px;
+}
+.pm-cap {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 10px;
+    font-size: 9.5px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--body-soft);
+}
+.pm-cap .pm-no {
+    font-family: "Cormorant Garamond", serif;
+    font-style: italic;
+    font-size: 17px;
+    letter-spacing: 0;
+    color: var(--gold);
+    font-weight: 500;
+}
+.pm-bar {
+    flex: 0 0 auto;
+    width: clamp(54px, 7vw, 96px);
+    height: 1px;
+    background: var(--paper-line);
+    position: relative;
+    overflow: hidden;
+}
+.pm-fill {
+    position: absolute;
+    inset: 0;
+    background: var(--gold);
+    transform: scaleX(0.25);
+    transform-origin: left;
+    transition: transform 0.8s var(--ease-out-expo);
+}
+.process-intro h2 {
+    font-size: clamp(40px, 5vw, 72px);
+    margin: 22px 0 26px;
+}
+.process-intro p {
+    max-width: 34ch;
+}
+.process-steps {
+    display: flex;
+    flex-direction: column;
+}
+.step {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: clamp(22px, 3vw, 46px);
+    padding: clamp(34px, 4vw, 54px) 0;
+    border-top: 1px solid var(--paper-line-soft);
+    position: relative;
+}
+.step:last-child {
+    border-bottom: 1px solid var(--paper-line-soft);
+}
+/* the rule above each step draws in as it enters */
+.step::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: 0;
+    height: 1px;
+    width: 100%;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 1.3s var(--ease-out-expo);
+}
+.step.in::before {
+    transform: scaleX(1);
+}
+.step-no {
+    display: flex;
+    align-items: center;
+    color: var(--gold);
+    transition: transform 0.9s var(--ease-out-expo);
+}
+/* season mark — bud, leaf, cluster, barrel. Sized to the numerals it
+   replaced, so the rail keeps its original rhythm. */
+.step-glyph {
+    flex: 0 0 auto;
+    width: clamp(38px, 4.4vw, 58px);
+    height: clamp(38px, 4.4vw, 58px);
+    fill: none;
+    stroke: currentColor;
+    /* thinner than the small icons elsewhere — at this size the 24-unit
+       viewBox scales up ~2.4x, so 1.15 would render as a heavy line */
+    stroke-width: 1;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.72;
+    transition:
+        opacity 0.8s var(--ease),
+        transform 0.9s var(--ease-out-expo);
+}
+.step:hover .step-no {
+    transform: translateY(-3px);
+}
+.step:hover .step-glyph {
+    opacity: 1;
+    transform: rotate(-6deg) scale(1.05);
+}
+.step h3 {
+    font-family: "Cormorant Garamond", serif;
+    font-weight: 400;
+    font-size: clamp(27px, 2.8vw, 40px);
+    line-height: 1.06;
+    color: var(--ink);
+    margin-bottom: 12px;
+}
+.step .season {
+    font-size: 9.5px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--sage);
+    margin-bottom: 14px;
+    font-weight: 500;
+}
+.step p {
+    font-size: 16.5px;
+    line-height: 1.75;
+    color: var(--body);
+    font-weight: 300;
+    max-width: 46ch;
+}
+
+/* ============================================================ 14. VINEYARD */
+.vineyard {
+    display: grid;
+    grid-template-columns: minmax(0, 0.94fr) minmax(0, 1fr);
+    gap: clamp(40px, 7vw, 118px);
+    align-items: center;
+    background: var(--cream);
+    /* trimmed from .section's full padding — .vine-stats butts straight up
+       against this section with no padding of its own on top, so this is
+       the entire blank gap above the stats and needs to match the stats'
+       own bottom padding exactly */
+    padding-bottom: clamp(64px, 7vw, 104px);
+}
+.vine-photo {
+    aspect-ratio: 4/5;
+    width: 100%;
+    overflow: hidden;
+    clip-path: polygon(12% 0, 100% 0, 100% 100%, 0 100%, 0 12%);
+}
+.vine-photo img {
+    width: 100%;
+    /* overscan, same as .story-photo img — the extra 14% is the travel the
+       scroll engine moves it through */
+    height: 114%;
+    object-fit: cover;
+    will-change: transform;
+}
+/* plain column, matched to .story-copy — the cream card that used to
+   overlap the photo is gone along with the .card wrapper in the markup */
+.vineyard .vine-copy {
+    max-width: 500px;
+}
+.vine-copy h2 {
+    font-size: clamp(38px, 5vw, 74px);
+    margin: 22px 0 26px;
+}
+.vine-copy p {
+    font-size: 17.5px;
+    line-height: 1.78;
+    color: var(--body);
+    font-weight: 300;
+}
+/* ---- vineyard figures, inside the copy card ----
+   Numeric counterpart to the qualitative .vine-stats band further down, so
+   the two read as a pair rather than a repeat. Stacked two-up on small
+   screens and three across once the card has the width. */
+.vine-figs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    /* two explicit rows — every figure's number lands in row 1 and every
+       label in row 2, so the numbers stay on a shared baseline even when a
+       label wraps. gap is row-gap / column-gap. */
+    grid-template-rows: auto auto;
+    gap: 8px clamp(16px, 2.6vw, 40px);
+    margin-top: 15px;
+    padding-top: 10px;
+    padding-bottom: 17px;
+}
+/* the wrapper exists for the dt/dd pairing only — it must not become a grid
+   item, or the shared-baseline rows above would collapse into it */
+.vine-figs .fig {
+    display: contents;
+}
+.vine-figs .fig-k {
+    grid-row: 2;
+    font-size: 10px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--sage);
+    font-weight: 500;
+}
+.vine-figs .fig-v {
+    grid-row: 1;
+    align-self: end;
+    margin: 0;
+    font-family: "Cormorant Garamond", serif;
+    font-size: clamp(38px, 4.4vw, 56px);
+    line-height: 1;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+}
+
+/* The CTA exists twice — once at the foot of .vine-copy, once under the facts
+   band — because the two live in separate sections and no amount of order/
+   grid moves a child across that boundary. Exactly one is displayed at any
+   width, so there is never a duplicate link in the accessibility tree. */
+.vine-cta {
+    margin-top: 38px;
+}
+.vine-cta-stacked {
+    display: none;
+}
+
+/* ---- vineyard facts band ---- */
+.vine-stats {
+    background: var(--cream);
+    /* no top padding of its own — see .vineyard's padding-bottom, which is
+       the entire blank gap above this band and is matched to the bottom
+       padding below */
+    padding: 0 var(--gutter) clamp(64px, 7vw, 104px);
+}
+.vine-stats .wrap {
+    border-top: 1px solid var(--paper-line);
+    border-bottom: 1px solid var(--paper-line);
+}
+/* stacked on small screens, three across once there is room */
+.stat-list {
+    display: grid;
+    grid-template-columns: 1fr;
+}
+.stat {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: clamp(26px, 3vw, 40px) 0;
+    position: relative;
+}
+.stat + .stat {
+    border-top: 1px solid var(--paper-line);
+}
+.stat .k {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--sage);
+    font-weight: 500;
+}
+.stat .v {
+    font-family: "Cormorant Garamond", serif;
+    font-size: clamp(25px, 2.4vw, 34px);
+    line-height: 1.1;
+    color: var(--ink);
+    font-style: italic;
+}
+/* ============================================================ 15. QUOTE MOMENT */
+/* The section is a scroll track. `.quote-stage` pins at 100vh while the
+   track passes through it, and `--qp` (0 → 1, written by the scroll engine
+   in script.js) bleeds the hero photo from grayscale into full colour over
+   that distance. Mobile gets a shorter track so the pin isn't a long dead
+   scroll; no-JS keeps --qp at 0 and simply shows the grayscale plate.
+
+   Layer order inside the stage:
+   gray(0) · scrim(1) · colour(2) · gold wash(3) · fog(4) · text(6). */
+.quote {
+    background: var(--ink-deep);
+    color: var(--cream);
+    position: relative;
+    --qp: 0;
+}
+.quote-track {
+    position: relative;
+    height: 190vh;
+}
+.quote-stage {
+    position: sticky;
+    top: 0;
+    /* min-height, not height: the stage carries generous top and bottom padding
+       and a pull quote that can run to several lines, and on a short viewport
+       (a phone in landscape, a small laptop) that total exceeds a screen — with
+       a fixed height the overflow: hidden below would crop the quote. This
+       resolves to exactly one screen everywhere it fits, and grows instead of
+       cropping where it does not.
+
+       fallback first for browsers without viewport-relative units */
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding: clamp(90px, 12vw, 160px) var(--gutter);
+    overflow: hidden;
+}
+.quote-stage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    background: radial-gradient(60% 70% at 50% 40%, rgba(184, 147, 79, 0.11), transparent 72%);
+    pointer-events: none;
+}
+.quote-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 58%;
+    display: block;
+    pointer-events: none;
+    user-select: none;
+    /* the push-in: starts well inside the frame and resolves to true size as
+       the colour lands, so the zoom is the other half of the transition */
+    transform: scale(calc(1.24 - 0.24 * var(--qp)));
+}
+.qb-gray {
+    z-index: 0;
+    /* brightness is kept close to .qb-color's on purpose — the crossfade
+       should read as colour arriving, not as the lights coming up */
+    filter: grayscale(1) contrast(1.06) brightness(0.46);
+}
+.quote-scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    /* lifts a touch as the colour arrives so the frame doesn't stay muddy */
+    opacity: calc(1 - 0.1 * var(--qp));
+    background: linear-gradient(180deg, rgba(10, 11, 10, 0.62) 0%, rgba(10, 11, 10, 0.34) 45%, rgba(10, 11, 10, 0.66) 100%);
+}
+.qb-color {
+    z-index: 2;
+    /* tuned against .qb-gray so mean luminance barely moves — the eye should
+       read saturation arriving, with only a faint warming lift */
+    filter: saturate(1.2) contrast(1.03) brightness(0.32);
+    opacity: var(--qp);
+}
+@media (min-width: 768px) {
+    .quote-track {
+        height: 260vh;
+    }
+}
+.fog-quote {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 22%, #000 74%, transparent);
+    mask-image: linear-gradient(180deg, transparent, #000 22%, #000 74%, transparent);
+}
+.quote .wrap {
+    position: relative;
+    z-index: 6;
+    max-width: 1000px;
+    width: 100%;
+}
+/* Progress through this section, pinned to the bottom of the stage. It reads
+   --qp, the 0->1 the scroll engine already computes to drive the section's
+   grayscale-to-colour bleed, so the bar and the picture are the same number by
+   construction and cannot disagree — there is no second measurement and no JS
+   of its own.
+
+   z-index 5: above the fog canvas at 4, below the quote copy at 6.
+
+   Note the stage is `position: sticky`, so `bottom: 0` is the bottom of the
+   pinned screen while the section is held — the bar sits on the viewport's
+   lower edge and fills as the track passes through. */
+.quote-progress {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    z-index: 5;
+    width: 100%;
+    height: 2px;
+    background: var(--gold);
+    transform: scaleX(var(--qp, 0));
+    transform-origin: left;
+    pointer-events: none;
+}
+.quote-mark {
+    font-family: "Cormorant Garamond", serif;
+    font-size: clamp(80px, 9vw, 140px);
+    line-height: 0.6;
+    color: var(--gold);
+    opacity: 0.35;
+    margin-bottom: 22px;
+}
+.quote blockquote {
+    font-family: "Cormorant Garamond", serif;
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(34px, 4vw, 58px);
+    line-height: 1.18;
+    letter-spacing: -0.012em;
+    color: var(--cream);
+}
+.quote figcaption {
+    margin-top: 40px;
+    font-size: 10px;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: rgba(246, 242, 234, 0.5);
+}
+.quote figcaption b {
+    display: block;
+    color: var(--gold-soft);
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+/* the sprite has to stay in the layout tree for <use> to resolve
+   everywhere, so hide it by size rather than with display:none */
+.icon-sprite {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+/* ============================================================ 16. WINE CLUB */
+.club {
+    background: var(--cream);
+    text-align: center;
+    /* the crest mark bleeds past the top edge — clip it here */
+    overflow: hidden;
+    /* the crest now fills the band above the eyebrow, so the section
+       doesn't need to buy that space with padding */
+    padding-top: clamp(70px, 7vw, 130px);
+}
+
+/* ---- hawk crest watermark ----
+   An oversized mark cropped by the top edge of the section. Offsets are
+   in px, not %, so the crest holds its position regardless of how tall
+   the tier grid and benefits block make the section. */
+.club-mark {
+    position: absolute;
+    left: 50%;
+    top: -70px;
+    width: min(130vw, 520px);
+    aspect-ratio: 1 / 1;
+    transform: translateX(-50%);
+    background: url("assets/hawk.png") center / contain no-repeat;
+    opacity: 0.085;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+    z-index: 0;
+}
+@media (min-width: 700px) {
+    .club-mark {
+        /* the tier cards stack two-wide here, so the crest is pulled
+           higher to keep its lower wing off the first card */
+        top: -210px;
+        width: 720px;
+    }
+}
+@media (min-width: 1100px) {
+    .club-mark {
+        top: -230px;
+        width: 940px;
+    }
+}
+
+.club-head {
+    max-width: 640px;
+    margin: 0 auto clamp(40px, 4.6vw, 62px);
+    /* copy sits above the crest */
+    position: relative;
+    z-index: 1;
+}
+.club-head .eyebrow {
+    justify-content: center;
+}
+.club-head h2 {
+    font-size: clamp(42px, 6vw, 92px);
+    margin: 22px auto 24px;
+    max-width: 13ch;
+}
+.club-head p {
+    max-width: 48ch;
+    margin: 0 auto;
+}
+.tier-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(18px, 2vw, 30px);
+    max-width: 1100px;
+    margin: 0 auto;
+    text-align: left;
+}
+.tier {
+    border: 1px solid var(--paper-line);
+    background: rgba(255, 255, 255, 0.42);
+    padding: clamp(32px, 3vw, 46px) clamp(26px, 2.6vw, 40px);
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    transition:
+        border-color 0.6s var(--ease),
+        transform 0.7s var(--ease-out-expo),
+        box-shadow 0.7s var(--ease);
+}
+.tier::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--paper);
+    opacity: 0;
+    transition: opacity 0.6s var(--ease);
+}
+.tier::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--merlot), var(--gold));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.7s var(--ease-out-expo);
+}
+.tier:hover,
+.tier.active {
+    border-color: rgba(184, 147, 79, 0.55);
+    transform: translateY(-6px);
+    box-shadow: 0 40px 70px -50px rgba(28, 24, 21, 0.55);
+}
+.tier:hover::before,
+.tier.active::before {
+    opacity: 1;
+}
+.tier.active::after {
+    transform: scaleX(1);
+}
+.tier h3 {
+    font-family: "Cormorant Garamond", serif;
+    font-weight: 400;
+    font-size: 35px;
+    line-height: 1.04;
+    color: var(--ink);
+    margin-bottom: 9px;
+}
+.tier .type {
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--sage);
+    margin-bottom: 24px;
+    font-weight: 500;
+}
+.tier .desc {
+    font-size: 15.5px;
+    line-height: 1.68;
+    color: var(--body);
+    font-weight: 300;
+    margin-bottom: 24px;
+}
+
+/* ---- varietals in each shipment ---- */
+.tier-pours {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-top: 22px;
+    border-top: 1px solid var(--paper-line-soft);
+    margin-bottom: 30px;
+    flex: 1;
+    align-content: flex-start;
+}
+.tier-pours li {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--body-soft);
+    border: 1px solid var(--paper-line);
+    border-radius: 100px;
+    padding: 7px 13px;
+    transition:
+        border-color 0.5s var(--ease),
+        color 0.5s var(--ease);
+}
+.tier:hover .tier-pours li,
+.tier.active .tier-pours li {
+    border-color: rgba(184, 147, 79, 0.45);
+    color: var(--body);
+}
+
+/* ---- corner fold on the selected tier ---- */
+.tier-flag {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 62px;
+    height: 62px;
+    z-index: 2;
+    pointer-events: none;
+    transform: scale(0);
+    transform-origin: 100% 0;
+    transition: transform 0.55s var(--ease-out-expo);
+}
+.tier-flag::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--merlot);
+    clip-path: polygon(100% 0, 100% 100%, 0 0);
+}
+.tier-flag svg {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 13px;
+    height: 13px;
+    fill: none;
+    stroke: var(--cream);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.tier.active .tier-flag {
+    transform: scale(1);
+}
+.tier .price {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 26px;
+    padding-top: 22px;
+    border-top: 1px solid var(--paper-line);
+}
+.tier .price .amt {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 40px;
+    color: var(--ink);
+    line-height: 1;
+}
+.tier .price .per {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--body-soft);
+}
+.tier .pick {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 10.5px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--merlot);
+}
+.tier .pick .dot {
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    border: 1px solid var(--merlot);
+    position: relative;
+    transition: background 0.45s var(--ease);
+}
+.tier .pick .dot::after {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    background: var(--cream);
+    transform: scale(0);
+    transition: transform 0.45s var(--ease-out-expo);
+}
+.tier.active .pick .dot {
+    background: var(--merlot);
+}
+.tier.active .pick .dot::after {
+    transform: scale(1);
+}
+/* ---- shared benefits panel ---- */
+.club-includes {
+    max-width: 1100px;
+    margin: clamp(22px, 2.4vw, 34px) auto 0;
+    text-align: left;
+    border: 1px solid var(--paper-line);
+    background: rgba(255, 255, 255, 0.4);
+    padding: clamp(28px, 3vw, 40px) clamp(26px, 2.6vw, 40px);
+}
+.ci-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    flex-wrap: wrap;
+    padding-bottom: 24px;
+    margin-bottom: 26px;
+    border-bottom: 1px solid var(--paper-line-soft);
+}
+.ci-badge {
+    font-size: 9.5px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: var(--cream);
+    background: var(--merlot);
+    padding: 7px 14px;
+    border-radius: 100px;
+}
+.ci-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(20px, 2.4vw, 38px);
+}
+.ci-list li {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--body);
+    font-weight: 300;
+}
+.ci-list svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: var(--gold);
+    stroke-width: 1.25;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.club-foot {
+    margin-top: clamp(46px, 5vw, 64px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+}
+.club-foot .fine {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--body-soft);
+}
+
+/* ============================================================ 17. EVENTS */
+.events {
+    padding-bottom: clamp(64px, 7vw, 110px);
+    position: relative;
+    background: var(--ink);
+    color: var(--cream);
+    overflow: hidden;
+}
+.events::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: url("assets/tasting-room.jpg") top left / 80% auto no-repeat;
+    transform: scaleX(-1);
+    pointer-events: none;
+}
+.events::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 70% at 100% 0%, rgba(18, 16, 16, 0.42) 0%, rgba(18, 16, 16, 0.84) 45%, rgba(18, 16, 16, 0.98) 75%), linear-gradient(to bottom, transparent 50%, var(--ink-deep) 100%), linear-gradient(to right, var(--ink-deep) 0%, transparent 30%);
+    pointer-events: none;
+}
+.events .wrap {
+    position: relative;
+    z-index: 1;
+}
+.events .eyebrow,
+.events .section-head .text-link {
+    color: var(--gold);
+}
+.events .section-head h2 {
+    color: var(--cream);
+    font-size: clamp(38px, 5vw, 74px);
+    max-width: 21ch;
+}
+/* ---- standing weekly band ---- */
+.recurring {
+    /* held as custom props so .rec-media can bleed back out to the band's
+       edges with a negative margin */
+    --rec-pad-y: clamp(26px, 3vw, 38px);
+    --rec-pad-x: clamp(26px, 3vw, 40px);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+    align-items: center;
+    gap: clamp(20px, 3vw, 46px);
+    padding: var(--rec-pad-y) var(--rec-pad-x);
+    background: rgba(184, 147, 79, 0.07);
+    border: 1px solid rgba(184, 147, 79, 0.22);
+    margin-bottom: clamp(34px, 4vw, 56px);
+}
+.recurring .ghost-btn {
+    --btn-fill: var(--gold);
+    --btn-ink: var(--ink);
+    border-color: rgba(184, 147, 79, 0.5);
+    color: var(--gold-soft);
+    white-space: nowrap;
+}
+.recurring .ghost-btn:hover {
+    border-color: var(--gold);
+}
+/* no room for it until the band moves alongside the list */
+.rec-media {
+    display: none;
+}
+.rec-tag {
+    display: block;
+    font-size: 9.5px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+.rec-main h3 {
+    font-family: "Cormorant Garamond", serif;
+    font-weight: 400;
+    font-size: clamp(26px, 2.6vw, 38px);
+    line-height: 1.04;
+    color: var(--cream);
+}
+.rec-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.rec-time {
+    font-size: clamp(22px, 2.2vw, 30px);
+    font-style: italic;
+    color: var(--gold-soft);
+    line-height: 1;
+}
+.rec-note {
+    font-size: 13px;
+    line-height: 1.55;
+    color: rgba(246, 242, 234, 0.6);
+    font-weight: 300;
+}
+
+/* ---- dated list with a numeral rail ---- */
+.event-list {
+    list-style: none;
+}
+.event-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) 180px auto;
+    align-items: center;
+    gap: clamp(22px, 3vw, 46px);
+    padding: clamp(24px, 2.6vw, 34px) 0;
+    border-top: 1px solid rgba(246, 242, 234, 0.12);
+    position: relative;
+    cursor: pointer;
+}
+.event-row:last-child {
+    border-bottom: 1px solid rgba(246, 242, 234, 0.12);
+}
+/* gold rule wipes in on hover */
+.event-row::after {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.7s var(--ease-out-expo);
+}
+.event-row:hover::after {
+    transform: scaleX(1);
+}
+.ev-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: clamp(74px, 8vw, 104px);
+    line-height: 1;
+}
+.ev-date .mo {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+}
+.ev-date .dy {
+    font-size: clamp(42px, 4.6vw, 68px);
+    font-weight: 300;
+    color: var(--cream);
+    letter-spacing: -0.02em;
+    transition: color 0.6s var(--ease);
+}
+.event-row:hover .ev-date .dy {
+    color: var(--gold-soft);
+}
+.ev-meta {
+    font-size: 10px;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: rgba(246, 242, 234, 0.5);
+    margin-bottom: 12px;
+}
+.ev-body h3 {
+    font-family: "Cormorant Garamond", serif;
+    font-weight: 400;
+    font-size: clamp(27px, 2.8vw, 40px);
+    line-height: 1.04;
+    color: var(--cream);
+    margin-bottom: 12px;
+}
+.ev-body p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: rgba(246, 242, 234, 0.64);
+    font-weight: 300;
+    max-width: 52ch;
+}
+.ev-media {
+    width: 180px;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    --curtain: var(--ink);
+}
+.ev-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1.3s var(--ease-out-expo);
+}
+.event-row:hover .ev-media img {
+    transform: scale(1.07);
+}
+.ev-go {
+    font-size: 20px;
+    color: var(--gold);
+    opacity: 0.5;
+    transition:
+        transform 0.6s var(--ease-out-expo),
+        opacity 0.5s var(--ease);
+}
+.event-row:hover .ev-go {
+    opacity: 1;
+    transform: translateX(7px);
+}
+
+/* ============================================================ 18. FOOTER */
+.footer {
+    background: var(--ink-deep);
+    color: var(--cream);
+    padding: 0 var(--gutter) 0;
+    position: relative;
+    overflow: hidden;
+}
+.footer::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -22%;
+    transform: translateX(-50%);
+    width: min(1400px, 130vw);
+    height: 62%;
+    background: radial-gradient(50% 100% at 50% 100%, rgba(184, 147, 79, 0.14), transparent 70%);
+    pointer-events: none;
+}
+/* ---- newsletter panel ---- */
+.footer-news {
+    position: relative;
+    z-index: 1;
+    border-bottom: 1px solid rgba(246, 242, 234, 0.1);
+    padding: 0 0 clamp(48px, 6vw, 80px);
+}
+.fn-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    gap: clamp(28px, 5vw, 80px);
+    align-items: end;
+}
+.fn-copy h3 {
+    font-family: "Cormorant Garamond", serif;
+    font-weight: 400;
+    font-size: clamp(28px, 3.6vw, 52px);
+    line-height: 1.06;
+    letter-spacing: -0.01em;
+    color: var(--cream);
+    margin-top: 18px;
+}
+.fn-copy h3 em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--gold-soft);
+}
+.footer-news .news-field {
+    margin-bottom: 10px;
+}
+.footer-news .news-field input {
+    font-size: 15px;
+    padding: 4px 0;
+}
+.footer-news .news-field button {
+    font-size: 20px;
+}
+
+/* ---- address + contact ---- */
+.addr-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+.contact-col address {
+    font-style: normal;
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgba(246, 242, 234, 0.66);
+    margin: 0;
+}
+.contact-list {
+    list-style: none;
+    padding-top: 16px;
+    border-top: 1px solid rgba(246, 242, 234, 0.08);
+}
+.contact-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+.contact-list li:last-child {
+    margin-bottom: 0;
+}
+.contact-list svg {
+    flex: 0 0 auto;
+    width: 14px;
+    height: 14px;
+    margin-top: 3px;
+    fill: none;
+    stroke: var(--gold);
+    stroke-width: 1.35;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.85;
+}
+/* `.footer-col a` (0,1,1) sets a 14px block link with a bottom margin —
+   match the specificity to tune it for the icon rows */
+.footer-col .contact-list a {
+    margin-bottom: 0;
+    font-size: 13.5px;
+    line-height: 1.45;
+    /* the email is long — it carries a <wbr /> after the @ so it breaks
+       there first, and only splits mid-word as a last resort */
+    overflow-wrap: break-word;
+}
+.footer-col a.addr-map {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    margin: 0;
+    border: 1px solid rgba(184, 147, 79, 0.4);
+    border-radius: 50%;
+    color: var(--gold);
+    transition:
+        border-color 0.45s var(--ease),
+        background 0.45s var(--ease),
+        transform 0.45s var(--ease-out-expo);
+}
+.footer-col a.addr-map:hover {
+    color: var(--gold-soft);
+    border-color: var(--gold);
+    background: rgba(184, 147, 79, 0.14);
+    transform: translateY(-2px);
+}
+.addr-map svg {
+    width: 15px;
+    height: 15px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.35;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+/* the day/time rows are space-between, so a narrow track collapses the gap
+   between them — hold a floor on the column itself */
+.hours-col {
+    min-width: 210px;
+}
+.hours-list {
+    list-style: none;
+    margin-bottom: 24px;
+}
+.hours-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    padding: 10px 0;
+    border-top: 1px solid rgba(246, 242, 234, 0.08);
+}
+.hours-list li:last-child {
+    border-bottom: 1px solid rgba(246, 242, 234, 0.08);
+}
+.hours-list .d {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(246, 242, 234, 0.5);
+}
+.hours-list .t {
+    font-family: "Cormorant Garamond", serif;
+    font-style: italic;
+    font-size: 19px;
+    color: var(--cream);
+    white-space: nowrap;
+}
+/* today's row, marked live by script.js (04b). Deliberately quiet — a rule
+   on the left edge and the day label brought up to full strength. Anything
+   louder turns a footer into a dashboard. */
+.hours-list li {
+    position: relative;
+    padding-left: 0;
+    transition:
+        padding-left 0.5s var(--ease),
+        border-color 0.5s var(--ease);
+}
+.hours-list li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 2px;
+    height: 0;
+    transform: translateY(-50%);
+    background: var(--dot, var(--gold));
+    transition: height 0.5s var(--ease);
+}
+.hours-list li.is-today {
+    padding-left: 14px;
+}
+.hours-list li.is-today::before {
+    height: 62%;
+}
+.hours-list li.is-today .d {
+    color: var(--gold-soft);
+}
+.hours-list li[data-state="open"] {
+    --dot: #8fae74;
+}
+.hours-list li[data-state="soon"] {
+    --dot: var(--gold-lit);
+}
+.hours-list li[data-state="closed"] {
+    --dot: rgba(246, 242, 234, 0.34);
+}
+@media (prefers-reduced-motion: reduce) {
+    .hours-list li,
+    .hours-list li::before {
+        transition: none;
+    }
+}
+/* `.footer-col a` (0,1,1) outranks `.text-link` (0,1,0), so the footer
+   link was rendering at the column's 14px. Match the specificity back. */
+.footer-col a.text-link {
+    font-size: 11px;
+    letter-spacing: 0.26em;
+    color: var(--gold);
+    margin-bottom: 0;
+}
+.footer-col a.text-link:hover {
+    transform: none;
+}
+/* On phones the reservation link reads as a boxed button. Styled from
+   .ghost-btn rather than given that class, because script.js injects the
+   .btn-t / .btn-fill sweep into every .ghost-btn and that machinery has no
+   job here. Reverts to a plain text link at 561px. */
+.hours-col a.text-link {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 17px 24px;
+    border: 1px solid rgba(246, 242, 234, 0.45);
+    background: rgba(246, 242, 234, 0.03);
+    color: var(--cream);
+    letter-spacing: 0.3em;
+}
+.hours-col a.text-link::before,
+.hours-col a.text-link::after {
+    display: none;
+}
+
+/* ---- oversized wordmark band ---- */
+.footer-wordmark {
+    position: relative;
+    z-index: 1;
+    margin: clamp(34px, 4vw, 56px) calc(-1 * var(--gutter)) 0;
+    /* clipped just below the baseline — the letterforms run off the
+       bottom of the page rather than sitting on it */
+    height: 0.58em;
+    font-size: clamp(88px, 19vw, 330px);
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+}
+.footer-wordmark span {
+    display: block;
+    font-family: "Cormorant Garamond", serif;
+    font-weight: 300;
+    font-size: 1em;
+    line-height: 0.72;
+    letter-spacing: 0.055em;
+    text-indent: 0.055em;
+    text-align: center;
+    white-space: nowrap;
+    background: linear-gradient(180deg, rgba(246, 242, 234, 0.2), rgba(246, 242, 234, 0.04));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.footer-grid {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: clamp(56px, 6vw, 84px) 0 0;
+    display: grid;
+    /* the two content-heavy columns carry a min so they never get squeezed
+       into the link columns; those have the slack to give up instead */
+    grid-template-columns: 1.15fr 1fr 1fr minmax(256px, 1.3fr) minmax(198px, 1.05fr);
+    gap: clamp(30px, 4vw, 72px);
+    position: relative;
+    z-index: 1;
+}
+/* Colophon: a gold hairline above and a ruled appellation line below bound
+   the block, the way the gold eyebrow anchors each link column beside it.
+   The mark and the wordmark lock up horizontally, so the block reads as one
+   piece rather than three stacked items sharing a left edge. */
+.footer-brand {
+    position: relative;
+}
+/* pulled up slightly once the grid goes five-across, so the mark's top edge
+   optically lines up with the column headings beside it */
+@media (min-width: 1200px) {
+    .footer-brand {
+        margin-top: -21px;
+    }
+}
+
+/* the brand lockup runs larger than the link columns beside it — mark,
+   wordmark and sub stepped up together so the lockup keeps its proportions.
+   The tagline below is deliberately left at its own size. */
+.fb-row {
+    display: flex;
+    /* the type block's bottom edge sits on the mark's, not its centre */
+    align-items: flex-end;
+    gap: 18px;
+    margin-bottom: 20px;
+}
+.footer-brand img {
+    height: 66px;
+    width: auto;
+    flex-shrink: 0;
+}
+.footer-brand .wordmark {
+    font-size: 18px;
+    font-weight: 400;
+    letter-spacing: 0.42em;
+}
+.footer-brand .fb-sub {
+    font-family: "Cormorant Garamond", serif;
+    font-style: italic;
+    font-size: 19.7px;
+    color: var(--gold-soft);
+}
+.footer-brand .fb-meta {
+    font-size: 9.5px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(246, 242, 234, 0.42);
+    margin-bottom: 18px;
+    max-width: 26ch;
+}
+.footer-brand .tag {
+    font-family: "Cormorant Garamond", serif;
+    font-style: italic;
+    font-size: 18.7px;
+    color: rgba(246, 242, 234, 0.58);
+    /* held in ch, so it re-measures against the larger size and the line
+       breaks land in the same place rather than getting narrower */
+    max-width: 24ch;
+    line-height: 1.45;
+    border-top: 1px solid rgba(246, 242, 234, 0.12);
+    padding-top: 20px;
+}
+.footer-col h4 {
+    font-size: 9.5px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 24px;
+    font-weight: 500;
+}
+.footer-col a {
+    display: block;
+    font-size: 14px;
+    color: rgba(246, 242, 234, 0.66);
+    margin-bottom: 14px;
+    width: fit-content;
+    position: relative;
+    transition:
+        color 0.45s var(--ease),
+        transform 0.45s var(--ease-out-expo);
+}
+.footer-col a:hover {
+    color: var(--cream);
+    transform: translateX(5px);
+}
+.news p {
+    font-size: 14px;
+    line-height: 1.65;
+    color: rgba(246, 242, 234, 0.55);
+    font-weight: 300;
+    margin-bottom: 20px;
+    max-width: 30ch;
+}
+.news-field {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid rgba(246, 242, 234, 0.24);
+    padding-bottom: 11px;
+    transition: border-color 0.5s var(--ease);
+}
+.news-field:focus-within {
+    border-color: var(--gold);
+}
+.news-field input {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--cream);
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+}
+.news-field input::placeholder {
+    color: rgba(246, 242, 234, 0.36);
+}
+.news-field button {
+    background: none;
+    border: none;
+    color: var(--gold);
+    cursor: pointer;
+    font-size: 17px;
+    transition: transform 0.5s var(--ease-out-expo);
+}
+.news-field button:hover {
+    transform: translateX(5px);
+}
+.footer-rule {
+    max-width: var(--maxw);
+    margin: clamp(54px, 5vw, 80px) auto 0;
+    padding-top: 26px;
+    border-top: 1px solid rgba(246, 242, 234, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+.footer-rule .fine {
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    color: rgba(246, 242, 234, 0.36);
+}
+.socials {
+    display: flex;
+    gap: 12px;
+}
+.socials a {
+    width: 38px;
+    height: 38px;
+    border: 1px solid rgba(246, 242, 234, 0.18);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+        border-color 0.45s var(--ease),
+        background 0.45s var(--ease),
+        transform 0.45s var(--ease-out-expo);
+}
+.socials a:hover {
+    border-color: var(--gold);
+    background: rgba(184, 147, 79, 0.12);
+    transform: translateY(-3px);
+}
+.socials svg {
+    width: 15px;
+    height: 15px;
+    fill: rgba(246, 242, 234, 0.72);
+}
+
+/* ============================================================ 19. MODAL */
+.modal-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(18, 16, 16, 0.62);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s var(--ease);
+}
+.modal-scrim.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+.modal {
+    background: var(--cream-warm);
+    max-width: 540px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: clamp(36px, 4vw, 58px);
+    position: relative;
+    transform: translateY(28px) scale(0.97);
+    opacity: 0;
+    transition:
+        transform 0.7s var(--ease-out-expo),
+        opacity 0.5s var(--ease);
+    border-top: 2px solid var(--gold);
+    box-shadow: 0 60px 120px -50px rgba(0, 0, 0, 0.6);
+}
+.modal-scrim.open .modal {
+    transform: none;
+    opacity: 1;
+}
+.modal .close {
+    position: absolute;
+    top: 18px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--ink);
+    line-height: 1;
+    opacity: 0.5;
+    transition:
+        opacity 0.3s,
+        transform 0.4s var(--ease-out-expo);
+}
+.modal .close:hover {
+    opacity: 1;
+    transform: rotate(90deg);
+}
+.modal .eyebrow {
+    color: var(--merlot);
+}
+.modal h3 {
+    font-family: "Cormorant Garamond", serif;
+    font-weight: 400;
+    font-size: clamp(32px, 4vw, 48px);
+    line-height: 1.02;
+    color: var(--ink);
+    margin: 18px 0 14px;
+}
+.modal p {
+    font-size: 15.5px;
+    line-height: 1.68;
+    color: var(--body);
+    font-weight: 300;
+    margin-bottom: 28px;
+}
+.modal .selected-tier {
+    font-family: "Cormorant Garamond", serif;
+    font-style: italic;
+    color: var(--merlot);
+}
+.field {
+    margin-bottom: 18px;
+}
+.field label {
+    display: block;
+    font-size: 9.5px;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--body-soft);
+    margin-bottom: 9px;
+}
+.field input,
+.field select {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.65);
+    border: 1px solid var(--paper-line);
+    padding: 14px 15px;
+    font-family: inherit;
+    font-size: 14.5px;
+    color: var(--ink);
+    outline: none;
+    border-radius: 1px;
+    transition: border-color 0.35s var(--ease);
+}
+.field input:focus,
+.field select:focus {
+    border-color: var(--gold);
+}
+.modal .btn-solid {
+    width: 100%;
+    margin-top: 8px;
+}
+.modal-success {
+    text-align: center;
+}
+.modal-success .check {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 1px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    color: var(--gold);
+    font-size: 26px;
+}
+.modal-success .eyebrow {
+    justify-content: center;
+}
+
+/* ============================================================ 20. RESPONSIVE (mobile-first base) */
+.nav {
+    grid-template-columns: auto auto;
+    padding: 16px var(--gutter);
+}
+.nav-left {
+    display: none;
+}
+.brand {
+    justify-self: start;
+}
+.brand img {
+    height: 46px;
+}
+.nav.scrolled .brand img {
+    height: 30px;
+    transform: none;
+}
+.nav-disc {
+    display: none;
+}
+.nav-right {
+    gap: 12px;
+}
+.nav-right .nav-link,
+.nav-right .nav-login {
+    display: none;
+}
+.nav-burger {
+    display: flex;
+}
+.cursor,
+.cursor-dot {
+    display: none;
+}
+
+.hero h1 {
+    font-size: clamp(50px, 13vw, 84px);
+    /* let the gutter do the constraining here — an 11ch cap was breaking
+       "Hand Finished." onto a third line */
+    max-width: none;
+}
+.visit-block .where .dotsep {
+    display: none;
+}
+
+.slider-nav {
+    right: auto;
+    left: var(--gutter);
+    bottom: 26px;
+    gap: 14px;
+}
+.sl-btn {
+    width: 44px;
+    height: 44px;
+}
+.visit-block {
+    padding-bottom: clamp(96px, 16vw, 130px);
+}
+
+.story,
+.vineyard {
+    grid-template-columns: 1fr;
+    gap: 48px;
+}
+/* stacked, the copy column runs straight into the facts band, so the CTA
+   reads better as the closing move under all three facts than buried
+   mid-scroll between the figures and the AVA row */
+.vine-cta-inline {
+    display: none;
+}
+.vine-cta-stacked {
+    display: inline-flex;
+    margin-top: 26px;
+}
+.story-photo-wrap {
+    order: -1;
+}
+.wine-grid {
+    grid-template-columns: 1fr;
+    gap: 34px;
+    max-width: 440px;
+    margin: 0 auto;
+}
+.process .wrap {
+    grid-template-columns: 1fr;
+    gap: 40px;
+}
+.process-intro {
+    position: static;
+}
+.step {
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+.tier-grid {
+    grid-template-columns: 1fr;
+    max-width: 440px;
+}
+.ci-list {
+    grid-template-columns: 1fr;
+    gap: 22px;
+}
+.ci-list li {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 14px;
+}
+.ci-list svg {
+    flex: 0 0 auto;
+    width: 19px;
+    height: 19px;
+    margin-top: 1px;
+}
+.club-includes {
+    max-width: 440px;
+}
+.recurring {
+    grid-template-columns: 1fr;
+    gap: 22px;
+}
+.recurring .ghost-btn {
+    width: 100%;
+}
+.event-row {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 18px;
+    align-items: start;
+}
+.ev-media,
+.ev-go {
+    display: none;
+}
+.ev-date {
+    align-items: flex-start;
+    /* the date column sizes to its own numerals instead of holding a 74px
+       floor, which is most of the gap to the copy. Floor comes back at 561px. */
+    min-width: 0;
+}
+.process-media {
+    display: none;
+}
+/* Explore + Visit ride together in one row — they're short link lists and
+   stacking them wasted a whole screen of scroll. Everything else spans. */
+/* on phones the newsletter panel and the brand lockup already read as two
+   separate blocks, so the rule between them was a third line stacked near the
+   tagline's own divider. Drop it and pull the two blocks closer together. */
+.footer-news {
+    border-bottom: 0;
+    padding-bottom: 26px;
+}
+.footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 34px clamp(20px, 6vw, 40px);
+    padding-top: 30px;
+}
+.footer-brand,
+.contact-col,
+.hours-col {
+    grid-column: 1 / -1;
+}
+/* the 34px row gap is right between the link columns but too tight under the
+   brand block, which reads as a header for everything below it */
+.footer-brand {
+    margin-bottom: 22px;
+}
+/* on phones the brand block owns the full width, so a 24ch rule left a stub
+   of a line floating under the lockup. The divider runs the full column and
+   the tagline steps up a little to hold its own beneath the wordmark. */
+.footer-brand .tag {
+    max-width: none;
+    font-size: 21px;
+    padding-top: 22px;
+}
+.fn-inner {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 26px;
+}
+.footer-wordmark {
+    height: 0.54em;
+    font-size: 21vw;
+}
+.section-head {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+@media (min-width: 561px) {
+    .footer-news {
+        border-bottom: 1px solid rgba(246, 242, 234, 0.1);
+        padding-bottom: clamp(48px, 6vw, 80px);
+    }
+    .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        padding-top: clamp(56px, 6vw, 84px);
+    }
+    .footer-brand {
+        grid-column: 1 / -1;
+        margin-bottom: 0;
+    }
+    /* back to a measured tagline once there's room for the columns to pair */
+    .footer-brand .tag {
+        max-width: 24ch;
+        font-size: 20.7px;
+        padding-top: 20px;
+    }
+    /* from here the two wide columns pair up like the link columns do */
+    .contact-col,
+    .hours-col {
+        grid-column: auto;
+    }
+    .fn-inner {
+        grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+        align-items: end;
+    }
+    .section-head {
+        flex-direction: row;
+        align-items: flex-end;
+    }
+
+    /* ---- undo the phone-only treatments ---- */
+    .hero-inner {
+        text-align: left;
+    }
+    .hero h1,
+    .hero-lede {
+        margin-inline: 0;
+    }
+    .hero-cta {
+        justify-content: flex-start;
+    }
+    .ev-date {
+        min-width: clamp(74px, 8vw, 104px);
+    }
+    .hours-col a.text-link {
+        display: inline-flex;
+        justify-content: flex-start;
+        width: fit-content;
+        padding: 0 0 8px;
+        border: 0;
+        background: none;
+        color: var(--gold);
+        letter-spacing: 0.26em;
+    }
+    .hours-col a.text-link::before,
+    .hours-col a.text-link::after {
+        display: block;
+    }
+}
+
+@media (min-width: 981px) {
+    .nav {
+        grid-template-columns: 1fr auto 1fr;
+        padding: 24px var(--gutter);
+    }
+    .nav.scrolled {
+        padding: 12px var(--gutter);
+    }
+    .nav-left {
+        display: flex;
+    }
+    .brand {
+        justify-self: center;
+    }
+    .brand-arc {
+        display: block;
+    }
+    .brand img {
+        height: 62px;
+    }
+    .nav.scrolled .brand img {
+        height: 34px;
+        transform: translateY(12px);
+    }
+    .nav.scrolled .brand {
+        --glow-y: 12px;
+    }
+    .nav-disc {
+        display: block;
+    }
+    .nav-right {
+        gap: clamp(18px, 2.4vw, 40px);
+    }
+    .nav-right .nav-link,
+    .nav-right .nav-login {
+        display: inline-block;
+    }
+    .nav-burger {
+        display: none;
+    }
+    .cursor,
+    .cursor-dot {
+        display: block;
+    }
+
+    .hero h1 {
+        font-size: clamp(72px, 10.4vw, 138px);
+        max-width: 14ch;
+    }
+    /* back to the floating corner card */
+    .hero-card {
+        left: auto;
+        right: var(--gutter);
+        bottom: var(--hero-floor);
+        width: min(304px, 74vw);
+        padding: 24px 26px 22px;
+        flex-wrap: nowrap;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        gap: 0;
+        border: 1px solid rgba(246, 242, 234, 0.16);
+        border-radius: 2px;
+    }
+    .hc-when {
+        display: contents;
+    }
+    .hc-label {
+        margin-bottom: 12px;
+    }
+    .hc-status {
+        font-size: 26px;
+        margin-bottom: 10px;
+    }
+    .hc-meta {
+        display: block;
+    }
+    .hc-link {
+        font-size: 10px;
+        letter-spacing: 0.26em;
+    }
+
+    .visit-block .where .dotsep {
+        display: inline-block;
+    }
+    .slider-nav {
+        left: auto;
+        right: var(--gutter);
+        bottom: clamp(30px, 4vw, 56px);
+        gap: 18px;
+    }
+    .sl-btn {
+        width: 52px;
+        height: 52px;
+    }
+    .visit-block {
+        padding-bottom: clamp(44px, 6vw, 92px);
+    }
+
+    .story {
+        grid-template-columns: minmax(0, 0.94fr) minmax(0, 1fr);
+        gap: clamp(40px, 7vw, 118px);
+    }
+    .story-photo-wrap {
+        order: 0;
+    }
+    .story-photo-inset {
+        display: block;
+    }
+    .vineyard {
+        grid-template-columns: minmax(0, 0.94fr) minmax(0, 1fr);
+        gap: clamp(40px, 7vw, 118px);
+    }
+    /* two-column again — the CTA goes back to the foot of the copy column */
+    .vine-cta-inline {
+        display: inline-flex;
+    }
+    .vine-cta-stacked {
+        display: none;
+    }
+    .stat-list {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    .stat {
+        padding: clamp(30px, 3.2vw, 46px) clamp(24px, 3vw, 46px);
+    }
+    .stat:first-child {
+        padding-left: 0;
+    }
+    .stat:last-child {
+        padding-right: 0;
+    }
+    /* rules between the columns rather than above each row */
+    .stat + .stat {
+        border-top: 0;
+        border-left: 1px solid var(--paper-line);
+    }
+    .wine-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: clamp(20px, 2.8vw, 46px);
+        max-width: none;
+        margin: 0;
+    }
+    /* half the gap either side, so the segments join across the gutters */
+    .wine-meta {
+        --rail-bleed: calc(clamp(20px, 2.8vw, 46px) / 2);
+    }
+    .process .wrap {
+        grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.15fr);
+        gap: clamp(40px, 6vw, 110px);
+    }
+    .process-intro {
+        position: sticky;
+    }
+    .step {
+        grid-template-columns: auto 1fr;
+        gap: clamp(22px, 3vw, 46px);
+    }
+    .tier-grid {
+        grid-template-columns: repeat(3, 1fr);
+        max-width: 1100px;
+    }
+    .club-includes {
+        max-width: 1100px;
+    }
+    .ci-list {
+        grid-template-columns: repeat(4, 1fr);
+        gap: clamp(20px, 2.4vw, 38px);
+    }
+    .ci-list li {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .ci-list svg {
+        width: 22px;
+        height: 22px;
+        margin-top: 0;
+    }
+    .recurring {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+        gap: clamp(20px, 3vw, 46px);
+    }
+    .recurring .ghost-btn {
+        width: auto;
+    }
+    .event-row {
+        grid-template-columns: auto minmax(0, 1fr) 180px auto;
+        gap: clamp(22px, 3vw, 46px);
+        align-items: center;
+    }
+    .ev-media,
+    .ev-go {
+        display: block;
+    }
+    .ev-date {
+        align-items: center;
+    }
+    .process-media {
+        display: block;
+    }
+    .footer-wordmark {
+        height: 0.58em;
+        font-size: clamp(88px, 19vw, 330px);
+    }
+}
+
+@media (min-width: 1101px) {
+    /* wide enough to sit the standing band beside the dated list — a third
+       to two thirds — instead of stacking it above */
+    .events-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+        gap: clamp(26px, 3vw, 48px);
+    }
+    /* a stretched grid item, so the list's height sets the band's — the copy
+       holds the bottom edge and the photo takes whatever is left over */
+    .recurring {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-end;
+        gap: clamp(14px, 1.4vw, 20px);
+        margin-bottom: 0;
+        /* floor for a short list — with one or two events the band would
+           otherwise collapse to little more than the copy */
+        min-height: clamp(460px, 36vw, 580px);
+    }
+    /* bleeds past the band's padding so it meets the border on three sides */
+    .recurring .ghost-btn {
+        width: auto;
+        margin-top: clamp(14px, 1.4vw, 20px);
+    }
+    .rec-media {
+        display: block;
+        align-self: stretch;
+        /* basis 0, not auto — on auto the photo's intrinsic height would set
+           the band's height and the list would stretch to match it, which is
+           backwards. At 0 it only ever absorbs the leftover space. */
+        flex: 1 1 0;
+        min-height: 170px;
+        margin: calc(-1 * var(--rec-pad-y)) calc(-1 * var(--rec-pad-x)) clamp(10px, 1.2vw, 18px);
+        overflow: hidden;
+    }
+    .rec-media img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    /* narrower track for the row thumbnails now that the list has two
+       thirds of the width rather than all of it */
+    .event-row {
+        grid-template-columns: auto minmax(0, 1fr) 140px auto;
+        gap: clamp(18px, 2vw, 34px);
+        padding: clamp(20px, 2.2vw, 30px) 0;
+    }
+}
+
+/* on wide screens the hero type sits low enough in the stage to clear the
+   nav without the optical centre drifting up */
+@media (min-width: 981px) {
+    .hero-inner {
+        padding-top: 110px;
+    }
+}
+
+/* five footer columns need real width — below this the paired two-column
+   layout from 561px keeps the link text off two lines */
+@media (min-width: 1201px) {
+    /* tracks hug their content and the leftover width is split evenly between
+       them, so the air between columns reads the same the whole way across.
+       With fr tracks the two link columns sat half empty while the tasting
+       room column ran edge to edge, which made the gaps look uneven. */
+    .footer-grid {
+        grid-template-columns: repeat(5, auto);
+        justify-content: space-between;
+        gap: 0 clamp(34px, 4vw, 76px);
+    }
+    .footer-brand {
+        grid-column: auto;
+    }
+    /* auto tracks size to max-content, so both of these need a cap or the
+       unwrapped line would set the column width */
+    .footer-brand .tag {
+        max-width: 25ch;
+    }
+    .footer-col .contact-list a {
+        max-width: 27ch;
+    }
+}
+
+@media (min-width: 1301px) {
+    .event-row {
+        grid-template-columns: auto minmax(0, 1fr) 170px auto;
+    }
+}

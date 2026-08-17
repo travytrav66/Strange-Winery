@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="theme-color" content="#121010" />
+        <meta name="description" content="Strange Family Vineyards — fog-grown, hand-finished wines from the Sta. Rita Hills. Estate Pinot Noir, Chardonnay, Syrah and méthode champenoise sparkling." />
+        <title>Strange Family Vineyards — Sta. Rita Hills</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Inter+Tight:wght@300;400;500;600&display=swap" rel="stylesheet" />
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+        <!-- ============================ LOADER ============================ -->
+        <div class="loader" id="loader">
+            <img src="assets/hawk.png" alt="Strange Family Vineyards" class="loader-hawk" />
+            <div class="loader-mark">Strange Family Vineyards</div>
+            <div class="loader-bar-track">
+                <div class="loader-bar-fill" id="loader-bar-fill"></div>
+            </div>
+            <div class="loader-pct" id="loader-pct">0</div>
+        </div>
+
+        <!-- ============================ ICON SPRITE ============================ -->
+        <svg class="icon-sprite" aria-hidden="true" focusable="false">
+            <symbol id="i-bottle" viewBox="0 0 24 24">
+                <path d="M10 2.5h4v3.9l1.5 2.9a4 4 0 0 1 .5 1.9V20a1.5 1.5 0 0 1-1.5 1.5h-5A1.5 1.5 0 0 1 8 20v-8.8a4 4 0 0 1 .5-1.9L10 6.4z" />
+                <path d="M8.2 13.2h7.6" />
+            </symbol>
+            <symbol id="i-cal" viewBox="0 0 24 24">
+                <rect x="3.2" y="5.2" width="17.6" height="15.6" rx="1.6" />
+                <path d="M3.2 10.2h17.6M8.4 3.2v4M15.6 3.2v4" />
+            </symbol>
+            <symbol id="i-pct" viewBox="0 0 24 24">
+                <path d="M19 5 5 19" />
+                <circle cx="7.6" cy="7.6" r="2.4" />
+                <circle cx="16.4" cy="16.4" r="2.4" />
+            </symbol>
+            <symbol id="i-glass" viewBox="0 0 24 24">
+                <path d="M7.6 3h8.8l-1 6.2a3.5 3.5 0 0 1-6.8 0z" />
+                <path d="M12 12.6V20M8.6 20h6.8" />
+            </symbol>
+            <symbol id="i-pin" viewBox="0 0 24 24">
+                <path d="M12 21.2s6.8-6.1 6.8-10.7a6.8 6.8 0 1 0-13.6 0C5.2 15.1 12 21.2 12 21.2z" />
+                <circle cx="12" cy="10.2" r="2.5" />
+            </symbol>
+            <symbol id="i-check" viewBox="0 0 24 24"><path d="m4.5 12.6 4.8 4.8L19.5 7.2" /></symbol>
+            <symbol id="i-phone" viewBox="0 0 24 24">
+                <path d="M8.4 3.5H5.2c-.9 0-1.7.8-1.6 1.7.3 3.6 1.7 7 4 9.7 2.1 2.5 4.9 4.3 8 5.2.9.3 1.9-.4 1.9-1.4v-2.9c0-.7-.5-1.4-1.2-1.5-.9-.2-1.8-.4-2.6-.8-.6-.2-1.2-.1-1.6.3l-1.1 1.1a13.6 13.6 0 0 1-4.9-4.9l1.1-1.1c.4-.4.6-1 .3-1.6-.4-.8-.6-1.7-.8-2.6-.1-.7-.7-1.2-1.3-1.2z" />
+            </symbol>
+            <symbol id="i-mail" viewBox="0 0 24 24">
+                <rect x="3" y="5.3" width="18" height="13.4" rx="2" />
+                <path d="m3.6 6.4 7.3 5.5c.65.5 1.55.5 2.2 0l7.3-5.5" />
+            </symbol>
+            <!-- ---- the four seasons of the process rail ---- -->
+            <symbol id="i-bud" viewBox="0 0 24 24">
+                <path d="M12 21.4v-8.2" />
+                <path d="M12 13.2c-2.9 0-4.7-2.2-4.7-5.2 2.9 0 4.7 2.2 4.7 5.2z" />
+                <path d="M12 13.2c2.9 0 4.7-2.2 4.7-5.2-2.9 0-4.7 2.2-4.7 5.2z" />
+                <path d="M12 8.6V4.2" />
+                <path d="M8.4 18.4H12" />
+            </symbol>
+            <symbol id="i-leaf" viewBox="0 0 24 24">
+                <path d="M4.6 21.2c.6-6.6 4-11.4 10.2-14.4" />
+                <path d="M20 4.4c1 7.4-2.6 12.8-9 13.4-2 .2-3.6-.6-4.2-2.1-1.7-4 3.7-10 13.2-11.3z" />
+                <path d="M12.4 15.4c1.4-2 2.2-4.3 2.4-6.9" />
+            </symbol>
+            <symbol id="i-cluster" viewBox="0 0 24 24">
+                <path d="M12 6.4V3.2" />
+                <path d="M12.2 4.6c1.5-1.3 3.2-1.5 4.4-1-.6 1.6-2.4 2.4-4.4 1.8z" />
+                <circle cx="8.3" cy="9.1" r="1.75" />
+                <circle cx="12" cy="9.1" r="1.75" />
+                <circle cx="15.7" cy="9.1" r="1.75" />
+                <circle cx="10.15" cy="13" r="1.75" />
+                <circle cx="13.85" cy="13" r="1.75" />
+                <circle cx="12" cy="16.9" r="1.75" />
+            </symbol>
+            <symbol id="i-barrel" viewBox="0 0 24 24">
+                <path d="M8.2 4h7.6" />
+                <path d="M8.2 20h7.6" />
+                <path d="M8.2 4c-2.1 2.4-3.2 5-3.2 8s1.1 5.6 3.2 8" />
+                <path d="M15.8 4c2.1 2.4 3.2 5 3.2 8s-1.1 5.6-3.2 8" />
+                <path d="M5.5 8.5h13" />
+                <path d="M5.5 15.5h13" />
+            </symbol>
+        </svg>
+
+        <!-- ============================ CHROME ============================ -->
+        <div class="grain" aria-hidden="true"></div>
+        <div class="cursor" id="cursor" aria-hidden="true"></div>
+        <div class="cursor-dot" id="cursor-dot" aria-hidden="true"></div>
+
+        <!-- ============================ NAV ============================ -->
+        <header class="nav" id="nav">
+            <div class="nav-disc" aria-hidden="true"><i></i></div>
+            <nav class="nav-left">
+                <a href="" class="nav-link"><span class="nav-link-inner" data-text="Shop">Shop</span></a>
+                <a href="" class="nav-link"><span class="nav-link-inner" data-text="Visit">Visit</span></a>
+                <a href="" class="nav-link"><span class="nav-link-inner" data-text="Join">Join</span></a>
+                <a href="" class="nav-link"><span class="nav-link-inner" data-text="Explore">Explore</span></a>
+            </nav>
+            <a href="#top" class="brand" aria-label="Strange Family Vineyards">
+                <img src="assets/hawk.png" alt="Strange hawk mark" />
+                <!-- the inked-in mark, cross-faded in on hover -->
+                <img src="assets/hawk-gold-mark.png" alt="" aria-hidden="true" class="brand-ink" />
+                <!-- wordmark curved under the hawk. script.js splits the string
+                     into one tspan per glyph so they can stagger in on load and
+                     retract last-letter-first when the bar goes compact. -->
+                <svg class="brand-arc" viewBox="0 0 190 190" aria-hidden="true" focusable="false">
+                    <defs>
+                        <path id="brand-arc-path" d="M 31.97 83.89 A 64 64 0 1 0 158.03 83.89" fill="none" />
+                    </defs>
+                    <text>
+                        <textPath href="#brand-arc-path" startOffset="50%" text-anchor="middle" id="brand-arc-text">STRANGE FAMILY VINEYARDS</textPath>
+                    </text>
+                </svg>
+            </a>
+            <div class="nav-right">
+                <a href="" class="nav-link" data-open="visit"><span class="nav-link-inner" data-text="Make a Reservation">Make a Reservation</span></a>
+                <a href="#" class="nav-login">Log In</a>
+                <button class="nav-cart" id="nav-cart" aria-label="Cart">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <path d="M16 10a4 4 0 0 1-8 0" />
+                    </svg>
+                    <span class="cart-count" id="cart-count" data-count="0">0</span>
+                </button>
+                <button class="nav-burger" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
+            </div>
+        </header>
+
+        <!-- ============================ MOBILE DRAWER ============================ -->
+        <div class="drawer-scrim" id="drawer-scrim"></div>
+        <nav class="drawer" id="drawer" aria-label="Mobile navigation">
+            <div class="drawer-header">
+                <div class="drawer-brand"><img src="assets/hawk.png" alt="Strange hawk mark" /></div>
+                <div class="drawer-top-actions">
+                    <button class="drawer-close" id="drawer-close" aria-label="Close menu">&times;</button>
+                </div>
+            </div>
+            <div class="drawer-links">
+                <a href="#wines" class="drawer-link"><span class="n" aria-hidden="true"></span>Shop</a>
+                <a href="#visit" class="drawer-link"><span class="n" aria-hidden="true"></span>Visit</a>
+                <a href="#club" class="drawer-link"><span class="n" aria-hidden="true"></span>Join</a>
+                <a href="#story" class="drawer-link"><span class="n" aria-hidden="true"></span>Our Story</a>
+                <a href="#vineyard" class="drawer-link"><span class="n" aria-hidden="true"></span>The Vineyard</a>
+                <a href="#events" class="drawer-link"><span class="n" aria-hidden="true"></span>Events</a>
+                <a href="#contact" class="drawer-link"><span class="n" aria-hidden="true"></span>Contact</a>
+            </div>
+            <div class="drawer-footer">
+                <a href="#" class="drawer-login">Log In</a>
+                <button class="nav-cart" id="drawer-cart-footer" aria-label="Cart">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <path d="M16 10a4 4 0 0 1-8 0" />
+                    </svg>
+                    <span class="cart-count" data-count="0">0</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- ============================ PAGE ============================ -->
+        <!-- Everything that scrolls lives in here so the wax seal, which is
+             pushed deliberately past the right edge of the screen, is cropped
+             instead of widening the document and adding a horizontal
+             scrollbar.
+
+             It has to be a wrapper rather than overflow-x on <html> or <body>:
+             overflow on those propagates to the viewport, which either does
+             nothing (body) or turns the root into a clip container and breaks
+             the position: sticky pins in the hero and quote sections (html).
+             A plain element clips without either side effect.
+
+             clip, not hidden — hidden would make this a scroll container and
+             the pinned sections would stick to it instead of the viewport.
+
+             The fixed chrome (loader, cursor, nav, drawer, modal) stays outside
+             deliberately; none of it scrolls and none of it needs cropping. -->
+        <div class="page">
+
+        <!-- ============================ HERO ============================ -->
+        <!-- HERO MODE SWITCH — data-hero-mode below is the only thing to change:
+               "image"  still photo, one screen tall, no mp4 requested (current)
+               "video"  pinned two-screen stage with the scroll-scrubbed film
+             It drives the track height (styles.css), whether the <video> is
+             shown, and whether the scrub engine in script.js 04c starts. The
+             film markup and code are left intact underneath either way. -->
+        <section class="hero" id="top" data-hero-mode="image" data-screen-label="Hero">
+            <!-- the track is the scroll distance; the stage pins at 100svh.
+                 In video mode at 981px+ the track runs two screens tall and
+                 script.js scrubs hero-vid.mp4 across the extra screen of
+                 scrolling. The video carries no src — it is assigned in
+                 script.js only on a desktop-width, motion-ok visit, so phones
+                 fall back to the still and never download it. -->
+            <div class="hero-track">
+                <div class="hero-stage">
+                    <div class="hero-media">
+                        <img src="assets/hero.jpg" alt="Sta. Rita Hills vineyard at golden hour" />
+                        <video class="hero-vid" id="hero-vid" data-src="assets/hero-vid-scrub.mp4" muted playsinline disablepictureinpicture preload="none" tabindex="-1" aria-hidden="true"></video>
+                    </div>
+                    <canvas class="fog-canvas" aria-hidden="true"></canvas>
+                    <div class="hero-dim" aria-hidden="true"></div>
+                    <div class="hero-inner">
+                        <h1 class="h-display" data-split="char">
+                            <span class="l2 serif">Fog Grown,</span>
+                            <span class="l1 serif">Hand Finished.</span>
+                        </h1>
+                        <p class="hero-lede">Estate sparkling and still wines from twenty fog-swept acres in the Sta. Rita Hills &mdash; farmed by hand, finished by our family.</p>
+                        <div class="hero-cta">
+                            <a href="#wines" class="ghost-btn">Explore our Wines <span class="arr">&rarr;</span></a>
+                        </div>
+                    </div>
+                    <aside class="hero-card">
+                        <div class="hc-when">
+                            <span class="hc-label">The Tasting Room</span>
+                            <!-- replaced on load by script.js (04b) with the real
+                                 live status, computed in the tasting room's own
+                                 time zone. The text below is what shows if JS
+                                 never runs, so it must stay true year-round. -->
+                            <span class="hc-status" id="hc-status">Open Daily</span>
+                        </div>
+                        <span class="hc-meta">2933 Grand Avenue, Ste. A<br />Los Olivos, California</span>
+                        <a href="" class="hc-link" data-open="visit">Make a Reservation <span class="arr">&rarr;</span></a>
+                    </aside>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================ ACCOLADES MARQUEE ============================ -->
+        <!-- HIDDEN FOR NOW — delete these two comment markers to bring the
+             accolades marquee back. The scroll loop in script.js already
+             no-ops when #marquee is absent, and its styles are untouched. -->
+        <!--
+        <section class="accolades" aria-label="Accolades">
+            <div class="marquee" id="marquee">
+                <div class="marquee-row">
+                    <span class="acc"><span class="pts serif">95</span><span class="src">Wine Enthusiast &middot; Estate Pinot Noir</span></span>
+                    <span class="acc-sep"></span>
+                    <span class="acc"><span class="pts serif">Top 10</span><span class="src">Sta. Rita Hills Producers</span></span>
+                    <span class="acc-sep"></span>
+                    <span class="acc"><span class="pts serif">94</span><span class="src">Vinous &middot; Blanc de Blancs</span></span>
+                    <span class="acc-sep"></span>
+                    <span class="acc"><span class="pts serif">Gold</span><span class="src">Central Coast Wine Competition</span></span>
+                    <span class="acc-sep"></span>
+                    <span class="acc"><span class="pts serif">93</span><span class="src">Wine &amp; Spirits &middot; Cold-Climate Syrah</span></span>
+                    <span class="acc-sep"></span>
+                    <span class="acc"><span class="pts serif">Organic</span><span class="src">Certified Farming &middot; 20 Acres</span></span>
+                    <span class="acc-sep"></span>
+                </div>
+            </div>
+        </section>
+        -->
+
+        <!-- ============================ STORY ============================ -->
+        <section class="section story" id="story" data-screen-label="Story">
+            <div class="story-photo-wrap">
+                <div class="story-photo mask-img">
+                    <img src="assets/founders.jpg" alt="The Strange family on the estate" />
+                    <!-- hairline inset from the crop, drawn in as the photo reveals -->
+                    <svg class="photo-rule" aria-hidden="true"><path d="" /></svg>
+                </div>
+                <div class="story-photo-inset mask-img d2"><img src="assets/family.jpg" alt="A family harvest" /></div>
+            </div>
+            <div class="story-copy">
+                <span class="eyebrow reveal">Strange Family Vineyards</span>
+                <h2 class="h-display reveal d1" data-split="line">A Family Obsession</h2>
+                <p class="reveal d2">We are a family bound to one stretch of cool, wind-raked hillside in the Sta. Rita Hills &mdash; where the Pacific fog lingers past noon and the fruit ripens slow and bright.</p>
+                <p class="reveal d3">Every bottle carries the patience of the place: méthode champenoise sparkling, restrained Pinot Noir, taut Chardonnay, and a cold-climate Syrah that surprises.</p>
+
+                <a href="" class="text-link reveal d4">Our Story <span class="arr">&rarr;</span></a>
+            </div>
+        </section>
+
+        <!-- ============================ WINES ============================ -->
+        <section class="section wines" id="wines" data-screen-label="Wines">
+            <canvas class="fog-canvas fog-wines" data-fog-alpha="0.34" aria-hidden="true"></canvas>
+            <div class="wrap">
+                <div class="section-head">
+                    <div class="section-head-copy">
+                        <img class="seal" src="assets/wax-seal.png" alt="" aria-hidden="true" />
+                        <div>
+                            <span class="eyebrow reveal">The Collection</span>
+                            <h2 class="h-display reveal d1" data-split="line">Our Featured Wines</h2>
+                        </div>
+                    </div>
+                    <a href="" class="text-link reveal d2" data-open="club">Shop All Wines <span class="arr">&rarr;</span></a>
+                </div>
+                <div class="wine-grid">
+                    <article class="wine-card reveal d1">
+                        <div class="wine-bottle">
+                            <img src="assets/bottle-pinot.png" alt="Strange SRH Pinot Noir" />
+                        </div>
+                        <div class="wine-meta">
+                            <div class="wm-head">
+                                <div class="vintage">2022</div>
+                                <h3 class="serif">SRH Pinot Noir</h3>
+                                <div class="appel">Sta. Rita Hills</div>
+                            </div>
+                            <p class="note">Dried cranberry, Bing cherry, and iron-tinged minerality. Lifted by dried herbs and orange peel, with a long, tensile finish.</p>
+                            <a href="" class="shop" data-open="club">Shop <span class="arr">&rarr;</span></a>
+                        </div>
+                    </article>
+                    <article class="wine-card reveal d2">
+                        <div class="wine-bottle">
+                            <img src="assets/bottle-rose.png" alt="Strange Rosé of Pinot Noir" />
+                        </div>
+                        <div class="wine-meta">
+                            <div class="wm-head">
+                                <div class="vintage">2025</div>
+                                <h3 class="serif">Rosé of Pinot Noir</h3>
+                                <div class="appel">Sta. Rita Hills</div>
+                            </div>
+                            <p class="note">Watermelon rind, dried strawberry, and blood orange zest. Briny minerality and a crisp, bone-dry finish.</p>
+                            <a href="" class="shop" data-open="club">Shop <span class="arr">&rarr;</span></a>
+                        </div>
+                    </article>
+                    <article class="wine-card reveal d3">
+                        <div class="wine-bottle">
+                            <img src="assets/bottle-syrah.png" alt="Strange Syrah" />
+                        </div>
+                        <div class="wine-meta">
+                            <div class="wm-head">
+                                <div class="vintage">2023</div>
+                                <h3 class="serif">Syrah</h3>
+                                <div class="appel">Sta. Rita Hills</div>
+                            </div>
+                            <p class="note">Cracked pepper, violet, and blue fruit. A cool-grown Syrah with northern-Rhône poise.</p>
+                            <a href="" class="shop" data-open="club">Shop <span class="arr">&rarr;</span></a>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================ VISIT ============================ -->
+        <section class="visit" id="visit" data-screen-label="Visit">
+            <div class="visit-media" data-parallax="0.12">
+                <div class="slides" id="visit-slides">
+                    <div class="slide is-active"><img src="assets/tasting-room.jpg" alt="The Los Olivos tasting room" /></div>
+                    <div class="slide"><img src="assets/event.jpg" alt="Guests raising a glass in the tasting room" /></div>
+                    <div class="slide"><img src="assets/family.jpg" alt="A gathering at the estate" /></div>
+                </div>
+            </div>
+            <!-- hairline brackets in the two top corners. Siblings rather than
+                 pseudo-elements because .visit::before/::after are already the
+                 scrim and there is no third one going spare. -->
+            <span class="visit-corner vc-l" aria-hidden="true"></span>
+            <span class="visit-corner vc-r" aria-hidden="true"></span>
+            <div class="visit-block">
+                <span class="eyebrow reveal">The Tasting Room</span>
+                <h2 class="h-display reveal d1" data-split="line">Pull up a chair<br /><em>and stay a while</em>.</h2>
+                <div class="where reveal d2">
+                    <span>Los Olivos, California</span>
+                    <span class="dotsep"></span>
+                    <span>Open Daily</span>
+                </div>
+                <a href="" class="ghost-btn reveal d3" data-open="visit">Plan Your Visit <span class="arr">&rarr;</span></a>
+            </div>
+            <div class="slider-nav reveal d3" aria-label="Tasting room gallery">
+                <button class="sl-btn" id="visit-prev" aria-label="Previous image">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 4 8 12l8 8" /></svg>
+                </button>
+                <div class="sl-count">
+                    <b id="visit-index">01</b><span class="sl-track"><i id="visit-bar"></i></span><span id="visit-total">03</span>
+                </div>
+                <button class="sl-btn" id="visit-next" aria-label="Next image">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4l8 8-8 8" /></svg>
+                </button>
+            </div>
+        </section>
+
+        <!-- ============================ PROCESS ============================ -->
+        <!--section class="section process" id="process" data-screen-label="Process">
+            <div class="wrap">
+                <div class="process-intro">
+                    <span class="eyebrow reveal">From Fog to Glass</span>
+                    <h2 class="h-display reveal d1" data-split="line">Four seasons,<br /><em>one bottle</em>.</h2>
+                    <p class="lede reveal d2">Nothing here is hurried. The hillside sets the pace, and we follow it — from the first pruning cut to the moment a cork is drawn.</p>
+             
+                    <div class="process-media reveal d3" aria-hidden="true">
+                        <div class="pm-stack">
+                            <img class="pm-img is-active" src="assets/founders.jpg" alt="" />
+                            <img class="pm-img" src="assets/hero.jpg" alt="" />
+                            <img class="pm-img" src="assets/family.jpg" alt="" />
+                            <img class="pm-img" src="assets/tasting-room.jpg" alt="" />
+                        </div>
+                        <div class="pm-foot">
+                            <span class="pm-cap"><b class="pm-no">01</b><span class="pm-txt">Winter &middot; Pruning</span></span>
+                            <span class="pm-bar"><i class="pm-fill"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="process-steps">
+                    <div class="step">
+                        <div class="step-no">
+                            <svg class="step-glyph" aria-hidden="true"><use href="#i-bud" /></svg>
+                        </div>
+                        <div>
+                            <div class="season">Winter &middot; Pruning</div>
+                            <h3>We cut back, hard.</h3>
+                            <p>Every vine is pruned by hand to a deliberate few buds. Low yields are not an accident here — they are the whole argument.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-no">
+                            <svg class="step-glyph" aria-hidden="true"><use href="#i-leaf" /></svg>
+                        </div>
+                        <div>
+                            <div class="season">Spring &middot; Canopy</div>
+                            <h3>The fog does the work.</h3>
+                            <p>Marine air funnels down the transverse valley each morning and holds until noon, stretching the growing season by weeks and keeping acid bright.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-no">
+                            <svg class="step-glyph" aria-hidden="true"><use href="#i-cluster" /></svg>
+                        </div>
+                        <div>
+                            <div class="season">Autumn &middot; Harvest</div>
+                            <h3>Picked before sunrise.</h3>
+                            <p>Fruit comes in cold, in small lots, sorted twice on the belt. Whole-cluster where the block asks for it, destemmed where it doesn't.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-no">
+                            <svg class="step-glyph" aria-hidden="true"><use href="#i-barrel" /></svg>
+                        </div>
+                        <div>
+                            <div class="season">The Cellar &middot; Patience</div>
+                            <h3>A light hand, then time.</h3>
+                            <p>Native ferments, neutral French oak, minimal intervention, and no filtration. Then we wait — because the wine tells us when, not the calendar.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section-->
+
+        <!-- ============================ VINEYARD ============================ -->
+        <section class="section vineyard" id="vineyard" data-screen-label="Vineyard">
+            <div class="vine-photo mask-img">
+                <img src="assets/hero.jpg" alt="Sta. Rita Hills estate landscape" />
+                <svg class="photo-rule" aria-hidden="true"><path d="" /></svg>
+            </div>
+            <div class="vine-copy">
+                <span class="eyebrow reveal">The Terroir</span>
+                <h2 class="h-display reveal d1" data-split="line">Our Vineyard</h2>
+                <p class="reveal d2">Twenty acres of sandy-loam soil on a cool, fog-funneled bench. We farm by hand and by instinct &mdash; low yields, native cover, and a light touch in the cellar that lets the place speak.</p>
+
+                <!-- Figures count up on scroll via the counters in script.js (06).
+                     PLACEHOLDER VALUES: acres and varietals match the copy above
+                     and the facts band below; tons/acre is a stand-in — swap
+                     data-count-to for the real number. -->
+                <dl class="vine-figs reveal d3">
+                    <div class="fig">
+                        <dt class="fig-k">Acres</dt>
+                        <dd class="fig-v serif" data-count-to="20">20</dd>
+                    </div>
+                    <div class="fig">
+                        <dt class="fig-k">Varietals</dt>
+                        <dd class="fig-v serif" data-count-to="3">3</dd>
+                    </div>
+                    <div class="fig">
+                        <dt class="fig-k">Tons / Acre</dt>
+                        <dd class="fig-v serif" data-count-to="2.4" data-decimals="1">2.4</dd>
+                    </div>
+                </dl>
+
+                <a href="" class="text-link vine-cta vine-cta-inline reveal d4">Explore the Vineyard <span class="arr">&rarr;</span></a>
+            </div>
+        </section>
+
+        <!-- ---- vineyard facts, run full width beneath the section ---- -->
+        <section class="vine-stats" aria-label="Vineyard facts">
+            <div class="wrap">
+                <div class="stat-list">
+                    <div class="stat reveal"><span class="k">AVA</span><span class="v serif">Sta. Rita Hills</span></div>
+                    <div class="stat reveal d1"><span class="k">Farming</span><span class="v serif">Organic &amp; Sustainable</span></div>
+                    <div class="stat reveal d2"><span class="k">Varietals</span><span class="v serif">Pinot &middot; Chardonnay &middot; Syrah</span></div>
+                </div>
+            </div>
+            <!-- mobile position for the vineyard CTA — the copy of this link
+                 inside .vine-copy takes over from 981px, where the section goes
+                 two-column again. Only one of the two is ever displayed. -->
+            <a href="" class="text-link vine-cta vine-cta-stacked reveal">Explore the Vineyard <span class="arr">&rarr;</span></a>
+        </section>
+
+        <!-- ============================ QUOTE ============================ -->
+        <section class="quote" data-screen-label="Quote">
+            <!-- the track is the scroll distance; the stage pins at 100vh and
+                 bleeds the hero photo from grayscale into full colour as the
+                 track passes through it -->
+            <div class="quote-track">
+                <div class="quote-stage">
+                    <img class="quote-bg qb-gray" src="assets/hero.jpg" alt="" aria-hidden="true" />
+                    <div class="quote-scrim" aria-hidden="true"></div>
+                    <img class="quote-bg qb-color" src="assets/hero.jpg" alt="" aria-hidden="true" />
+                    <canvas class="fog-canvas fog-quote" data-fog-alpha="0.34" aria-hidden="true"></canvas>
+                    <div class="wrap">
+                        <figure>
+                            <div class="quote-mark serif reveal" aria-hidden="true">&ldquo;</div>
+                            <blockquote class="reveal d1" data-split="line">There is a moment, about eleven in the morning, when the fog lifts off the ridge and the whole hillside exhales. That is the wine we are trying to bottle.</blockquote>
+                            <figcaption class="reveal d3"><b>The Strange Family</b></figcaption>
+                        </figure>
+                    </div>
+                    <!-- progress through this section only. Driven entirely by
+                         --qp, which the scroll engine already computes for the
+                         grayscale-to-colour bleed — no extra JS. -->
+                    <div class="quote-progress" aria-hidden="true"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================ WINE CLUB ============================ -->
+        <section class="section club" id="club" data-screen-label="Wine Club">
+            <!-- oversized hawk crest, cropped by the section's top edge -->
+            <span class="club-mark" aria-hidden="true"></span>
+            <div class="wrap">
+                <div class="club-head">
+                    <span class="eyebrow reveal">Our Wine Club</span>
+                    <h2 class="h-display reveal d1" data-split="line">Become a Part <em>of the Family</em></h2>
+                    <p class="lede reveal d2">Fostering a genuine sense of community is very important to us, beginning with our wine club. Three thoughtfully curated options &mdash; and best of all, there&rsquo;s no fee to join.</p>
+                </div>
+                <div class="tier-grid">
+                    <div class="tier reveal d1" data-tier="Seven Summits">
+                        <span class="tier-flag" aria-hidden="true"
+                            ><svg><use href="#i-check" /></svg
+                        ></span>
+                        <h3 class="serif">Seven Summits</h3>
+                        <div class="type">Sparkling Wine Club</div>
+                        <p class="desc">A selection of our estate-grown Blanc de Blancs, Blanc de Noirs, and Brut Ros&eacute; sparkling wines.</p>
+                        <ul class="tier-pours">
+                            <li>Blanc de Blancs</li>
+                            <li>Blanc de Noirs</li>
+                            <li>Brut Ros&eacute;</li>
+                        </ul>
+                        <div class="pick"><span>Select</span><span class="dot"></span></div>
+                    </div>
+                    <div class="tier reveal d2" data-tier="Soaring Eagle">
+                        <span class="tier-flag" aria-hidden="true"
+                            ><svg><use href="#i-check" /></svg
+                        ></span>
+                        <h3 class="serif">Soaring Eagle</h3>
+                        <div class="type">Still Wine Club</div>
+                        <p class="desc">A selection of our estate-grown Chardonnay, Pinot Noir, and Ros&eacute; still wines.</p>
+                        <ul class="tier-pours">
+                            <li>Chardonnay</li>
+                            <li>Pinot Noir</li>
+                            <li>Ros&eacute;</li>
+                        </ul>
+                        <div class="pick"><span>Select</span><span class="dot"></span></div>
+                    </div>
+                    <div class="tier reveal d3" data-tier="Take Flight">
+                        <span class="tier-flag" aria-hidden="true"
+                            ><svg><use href="#i-check" /></svg
+                        ></span>
+                        <h3 class="serif">Take Flight</h3>
+                        <div class="type">Mixed Club</div>
+                        <p class="desc">A selection of our estate-grown sparkling and still wines &mdash; the surest way to taste the whole estate.</p>
+                        <ul class="tier-pours">
+                            <li>Sparkling</li>
+                            <li>Still</li>
+                        </ul>
+                        <div class="pick"><span>Select</span><span class="dot"></span></div>
+                    </div>
+                </div>
+
+                <!-- benefits are identical across all three tiers, so they live
+                     once here rather than being repeated in every card -->
+                <div class="club-includes reveal d2">
+                    <div class="ci-head">
+                        <span class="eyebrow">Every Membership Includes</span>
+                        <span class="ci-badge">No fee to join</span>
+                    </div>
+                    <ul class="ci-list">
+                        <li>
+                            <svg aria-hidden="true"><use href="#i-pct" /></svg><span>20% off all purchases, including club shipments</span>
+                        </li>
+                        <li>
+                            <svg aria-hidden="true"><use href="#i-glass" /></svg><span>Four complimentary tastings or glasses of wine per year</span>
+                        </li>
+                        <li>
+                            <svg aria-hidden="true"><use href="#i-cal" /></svg><span>Invites to exclusive events, at our tasting room and estate vineyard</span>
+                        </li>
+                        <li>
+                            <svg aria-hidden="true"><use href="#i-bottle" /></svg><span>Access to library wines, when available</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="club-foot reveal d2">
+                    <button class="btn-solid" data-open="club">Join Now <span class="arr">&rarr;</span></button>
+                    <span class="fine">No fee to join &middot; Cancel anytime</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================ EVENTS ============================ -->
+        <section class="section events" id="events" data-screen-label="Events">
+            <div class="wrap">
+                <div class="section-head">
+                    <div>
+                        <span class="eyebrow reveal">Gather With Us</span>
+                        <h2 class="h-display reveal d1" data-split="line">Strangers are just <em>friends we haven&rsquo;t met yet</em>.</h2>
+                    </div>
+                    <a href="" class="text-link reveal d2">View All Events <span class="arr">&rarr;</span></a>
+                </div>
+
+                <!-- weekly, so it reads as a standing band — above the dated list
+                     on smaller screens, beside it at 1/3 width on wide ones -->
+                <div class="events-layout">
+                    <div class="recurring reveal d1">
+                        <!-- only rendered on wide screens, where the band sits
+                             beside the list and has height to fill -->
+                        <div class="rec-media mask-img d1">
+                            <img src="assets/tasting-room.jpg" alt="The Los Olivos tasting room set for happy hour" />
+                        </div>
+                        <div class="rec-main">
+                            <span class="rec-tag">Every Wednesday &amp; Thursday</span>
+                            <h3 class="serif">The Happiest Hours</h3>
+                        </div>
+                        <div class="rec-meta">
+                            <span class="rec-time serif">4 &ndash; 6 PM</span>
+                            <span class="rec-note">$10 glasses &middot; $13 sparkling &middot; $10 zero-proof cocktails</span>
+                        </div>
+                        <a class="ghost-btn" href="https://www.google.com/maps/dir/?api=1&amp;destination=2933+Grand+Avenue+Ste+A%2C+Los+Olivos%2C+CA+93441" target="_blank" rel="noopener">Get Directions <span class="arr">&rarr;</span></a>
+                    </div>
+
+                    <ul class="event-list">
+                        <li class="event-row reveal d1">
+                            <div class="ev-date"><span class="mo">May</span><span class="dy serif">31</span></div>
+                            <div class="ev-body">
+                                <div class="ev-meta">Sunday &middot; 4 PM &middot; La Herradura Polo Club</div>
+                                <h3 class="serif">Caviar, Bubbles &amp; Polo</h3>
+                                <p>An elegant afternoon where sport meets indulgence. Sip exceptional bubbles, savor fresh caviar and lobster rolls, and take in live polo in Santa Ynez. Benefiting the Artist Advocacy Foundation.</p>
+                            </div>
+                            <div class="ev-media mask-img"><img src="assets/event.jpg" alt="" /></div>
+                            <span class="ev-go" aria-hidden="true">&rarr;</span>
+                        </li>
+
+                        <!-- ===================================================================
+                             PLACEHOLDER EVENTS — the two rows below are invented. Only the
+                             Caviar, Bubbles & Polo row above came from the live site.
+                             Replace or delete these before publishing.
+                             =================================================================== -->
+                        <li class="event-row reveal d2">
+                            <div class="ev-date"><span class="mo">Sep</span><span class="dy serif">19</span></div>
+                            <div class="ev-body">
+                                <div class="ev-meta">Saturday &middot; 5 PM &middot; Estate Vineyard</div>
+                                <h3 class="serif">Harvest Supper</h3>
+                                <p>A long table set among the vines at the end of picking. Family-style courses paired through the estate range.</p>
+                            </div>
+                            <div class="ev-media mask-img"><img src="assets/family.jpg" alt="" /></div>
+                            <span class="ev-go" aria-hidden="true">&rarr;</span>
+                        </li>
+                        <li class="event-row reveal d3">
+                            <div class="ev-date"><span class="mo">Nov</span><span class="dy serif">08</span></div>
+                            <div class="ev-body">
+                                <div class="ev-meta">Saturday &middot; 1 PM &middot; Los Olivos Tasting Room</div>
+                                <h3 class="serif">Library Release</h3>
+                                <p>A seated vertical of estate Pinot Noir, poured alongside the current release. Members first.</p>
+                            </div>
+                            <div class="ev-media mask-img"><img src="assets/tasting-room.jpg" alt="" /></div>
+                            <span class="ev-go" aria-hidden="true">&rarr;</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================ FOOTER ============================ -->
+        <footer class="footer" id="contact" data-screen-label="Footer">
+            <!-- ---- newsletter panel ---- -->
+            <div class="footer-news">
+                <div class="fn-inner">
+                    <div class="fn-copy">
+                        <span class="eyebrow reveal">Join The List</span>
+                        <h3 class="serif reveal d1">First word on new releases,<br /><em>events, and library offers</em>.</h3>
+                    </div>
+                    <form class="news-field reveal d2" id="news-field">
+                        <input type="email" placeholder="Email address" aria-label="Email address" required />
+                        <button type="submit" aria-label="Subscribe">&rarr;</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ---- columns ---- -->
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="fb-row">
+                        <img src="assets/hawk.png" alt="Strange hawk mark" />
+                        <div>
+                            <div class="wordmark">STRANGE</div>
+                            <div class="fb-sub">Family Vineyards</div>
+                        </div>
+                    </div>
+                    <div class="tag">A family bound to one stretch of fog-kissed hillside.</div>
+                </div>
+                <div class="footer-col">
+                    <h4>Explore</h4>
+                    <a href="#wines">The Wines</a>
+                    <a href="#story">Our Story</a>
+                    <a href="">Our Team</a>
+                    <a href="#vineyard">The Vineyard</a>
+                    <a href="" data-open="club">Wine Club</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Visit</h4>
+                    <a href="#visit">Tasting Room</a>
+                    <a href="" data-open="visit">Plan a Visit</a>
+                    <a href="#events">Events</a>
+
+                    <a href="">Trade &amp; Press</a>
+                    <a href="">Contact</a>
+                </div>
+                <div class="footer-col contact-col">
+                    <h4>Tasting Room</h4>
+                    <div class="addr-row">
+                        <address>2933 Grand Avenue, Ste. A<br />Los Olivos, CA 93441</address>
+                        <a class="addr-map" href="https://www.google.com/maps/dir/?api=1&amp;destination=2933+Grand+Avenue+Ste+A%2C+Los+Olivos%2C+CA+93441" target="_blank" rel="noopener" aria-label="Get directions to the tasting room" title="Get directions">
+                            <svg aria-hidden="true"><use href="#i-pin" /></svg>
+                        </a>
+                    </div>
+                    <ul class="contact-list">
+                        <li>
+                            <svg aria-hidden="true"><use href="#i-phone" /></svg>
+                            <a href="tel:+18053153662">+1 (805) 315&ndash;3662</a>
+                        </li>
+                        <li>
+                            <svg aria-hidden="true"><use href="#i-mail" /></svg>
+                            <a href="mailto:tastingroom@strangefamilyvineyards.com">tastingroom@<wbr />strangefamilyvineyards.com</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="footer-col hours-col">
+                    <h4>Hours</h4>
+                    <!-- data-days is how script.js (04b) finds today's row and
+                         marks it live. Sunday is 0. -->
+                    <ul class="hours-list">
+                        <li data-days="0,1"><span class="d">Sun &amp; Mon</span><span class="t">12 &ndash; 5:30</span></li>
+                        <li data-days="2,3,4"><span class="d">Tue &ndash; Thu</span><span class="t">12 &ndash; 6</span></li>
+                        <li data-days="5,6"><span class="d">Fri &amp; Sat</span><span class="t">11 &ndash; 7</span></li>
+                    </ul>
+                    <a class="text-link on-dark" href="" data-open="visit">Make a Reservation <span class="arr">&rarr;</span></a>
+                </div>
+            </div>
+
+            <div class="footer-rule">
+                <span class="fine">&copy; 2026 Strange Family Vineyards &middot; Los Olivos, CA &middot; Please enjoy responsibly.</span>
+                <div class="socials">
+                    <a href="#" aria-label="Instagram">
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M12 2.2c3.2 0 3.6 0 4.9.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.86s0 3.6-.07 4.86c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.9.07s-3.6 0-4.86-.07c-1.17-.05-1.8-.25-2.23-.41a3.7 3.7 0 0 1-1.38-.9 3.7 3.7 0 0 1-.9-1.38c-.16-.42-.36-1.06-.41-2.23C2.21 15.6 2.2 15.2 2.2 12s0-3.6.07-4.86c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.4 2.21 8.8 2.2 12 2.2zm0 1.8c-3.15 0-3.5 0-4.74.07-.9.04-1.38.19-1.7.31-.43.17-.74.37-1.06.69-.32.32-.52.63-.69 1.06-.12.32-.27.8-.31 1.7C3.43 8.5 3.42 8.85 3.42 12s0 3.5.07 4.74c.04.9.19 1.38.31 1.7.17.43.37.74.69 1.06.32.32.63.52 1.06.69.32.12.8.27 1.7.31 1.24.07 1.59.07 4.74.07s3.5 0 4.74-.07c.9-.04 1.38-.19 1.7-.31.43-.17.74-.37 1.06-.69.32-.32.52-.63.69-1.06.12-.32.27-.8.31-1.7.07-1.24.07-1.59.07-4.74s0-3.5-.07-4.74c-.04-.9-.19-1.38-.31-1.7a2.85 2.85 0 0 0-.69-1.06 2.85 2.85 0 0 0-1.06-.69c-.32-.12-.8-.27-1.7-.31C15.5 4 15.15 4 12 4zm0 3.07a4.93 4.93 0 1 1 0 9.86 4.93 4.93 0 0 1 0-9.86zm0 1.8a3.13 3.13 0 1 0 0 6.26 3.13 3.13 0 0 0 0-6.26zm5.13-.9a1.15 1.15 0 1 1-2.3 0 1.15 1.15 0 0 1 2.3 0z" />
+                        </svg>
+                    </a>
+                    <a href="#" aria-label="Facebook">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M13.5 21v-8.2h2.76l.41-3.2H13.5V7.55c0-.93.26-1.56 1.59-1.56h1.7V3.13c-.3-.04-1.3-.13-2.48-.13-2.45 0-4.13 1.5-4.13 4.25v2.35H7.4v3.2h2.78V21h3.32z" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- ---- oversized wordmark band ---- -->
+            <div class="footer-wordmark" aria-hidden="true"><span>STRANGE</span></div>
+        </footer>
+
+        </div>
+        <!-- /.page -->
+
+        <!-- ============================ MODAL ============================ -->
+        <div class="modal-scrim" id="modal-scrim">
+            <div class="modal" role="dialog" aria-modal="true"><div id="modal-body"></div></div>
+        </div>
+
+        <script src="script.js"></script>
+    </body>
+</html>
